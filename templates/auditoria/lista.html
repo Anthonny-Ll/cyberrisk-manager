@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block titulo %}Log de Auditoría — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<h2 class="page-title mb-3"><i class="bi bi-journal-text me-2"></i>Log de Auditoría</h2>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height:75vh;overflow-y:auto">
+            <table class="table table-sm table-hover mb-0">
+                <thead class="sticky-top bg-white">
+                    <tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>ID</th><th>Descripción</th></tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td class="text-nowrap"><small>{{ log.fecha_hora|date:"d/m/Y H:i:s" }}</small></td>
+                        <td>{{ log.id_usuario.username|default:"—" }}</td>
+                        <td>
+                            {% if log.accion == 'crear' %}<span class="badge bg-success">crear</span>
+                            {% elif log.accion == 'editar' %}<span class="badge bg-primary">editar</span>
+                            {% elif log.accion == 'desactivar' %}<span class="badge bg-warning text-dark">desactivar</span>
+                            {% elif log.accion == 'login' %}<span class="badge bg-info text-dark">login</span>
+                            {% else %}<span class="badge bg-secondary">{{ log.accion }}</span>{% endif %}
+                        </td>
+                        <td><small>{{ log.entidad_afectada }}</small></td>
+                        <td><small>{{ log.id_entidad|default:"—" }}</small></td>
+                        <td><small>{{ log.descripcion }}</small></td>
+                    </tr>
+                    {% empty %}<tr><td colspan="6" class="text-center text-muted py-4">Sin registros de auditoría.</td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

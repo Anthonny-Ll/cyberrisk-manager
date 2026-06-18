@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block titulo %}Nuevo Riesgo Residual — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex align-items-center mb-3">
+    <a href="/residual/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="page-title mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Nuevo Riesgo Residual</h2>
+</div>
+<div class="alert alert-info small"><i class="bi bi-info-circle me-1"></i>El riesgo residual debe ser <strong>menor o igual</strong> al riesgo inherente del riesgo asociado (RN-03).</div>
+<div class="form-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Riesgo inherente *</label>{{ form.id_riesgo }}</div>
+            <div class="col-md-6"><label class="form-label">Tratamiento aplicado *</label>{{ form.id_tratamiento }}</div>
+            <div class="col-md-6">
+                <label class="form-label">Probabilidad residual *</label>{{ form.prob_residual }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Impacto residual *</label>{{ form.impacto_residual }}
+            </div>
+            <div class="col-12">
+                <div class="alert alert-light border py-3" id="resultado-residual">
+                    <strong>Seleccione probabilidad e impacto residual para calcular</strong>
+                </div>
+                <div class="form-text">
+                    <strong>Escala:</strong>
+                    <span class="badge bg-success">1–4 Bajo</span>
+                    <span class="badge bg-warning text-dark">5–8 Medio</span>
+                    <span class="badge bg-orange">9–12 Alto</span>
+                    <span class="badge bg-danger">13–16 Crítico</span>
+                </div>
+            </div>
+            <div class="col-12"><label class="form-label">Observaciones</label>{{ form.observaciones }}</div>
+        </div>
+        <hr class="my-3">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Guardar</button>
+            <a href="/residual/" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

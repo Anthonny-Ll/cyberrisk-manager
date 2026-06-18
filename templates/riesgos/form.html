@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex align-items-center mb-3">
+    <a href="/riesgos/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="page-title mb-0"><i class="bi bi-graph-up-arrow me-2"></i>{{ titulo }}</h2>
+</div>
+<div class="form-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="row g-3">
+            <div class="col-md-12"><label class="form-label">Activo *</label>{{ form.id_activo }}{% if form.id_activo.errors %}<div class="text-danger small">{{ form.id_activo.errors }}</div>{% endif %}</div>
+            <div class="col-md-6"><label class="form-label">Amenaza *</label>{{ form.id_amenaza }}{% if form.id_amenaza.errors %}<div class="text-danger small">{{ form.id_amenaza.errors }}</div>{% endif %}</div>
+            <div class="col-md-6"><label class="form-label">Vulnerabilidad *</label>{{ form.id_vulnerabilidad }}{% if form.id_vulnerabilidad.errors %}<div class="text-danger small">{{ form.id_vulnerabilidad.errors }}</div>{% endif %}</div>
+
+            <div class="col-md-6">
+                <label class="form-label">Probabilidad (1–4) *</label>
+                {{ form.probabilidad }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Impacto (1–4) *</label>
+                {{ form.impacto }}
+            </div>
+
+            <!-- Resultado en tiempo real -->
+            <div class="col-12">
+                <div class="alert alert-light border py-3" id="resultado-riesgo">
+                    <strong>Seleccione probabilidad e impacto para calcular el riesgo</strong>
+                </div>
+                <div class="form-text">
+                    <strong>Escala:</strong>
+                    <span class="badge bg-success">1–4 Bajo</span>
+                    <span class="badge bg-warning text-dark">5–8 Medio</span>
+                    <span class="badge bg-orange">9–12 Alto</span>
+                    <span class="badge bg-danger">13–16 Crítico</span>
+                </div>
+            </div>
+
+            <div class="col-md-4"><label class="form-label">Estado</label>{{ form.estado_riesgo }}</div>
+            <div class="col-12"><label class="form-label">Observaciones</label>{{ form.observaciones }}</div>
+        </div>
+        <hr class="my-3">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Guardar</button>
+            <a href="/riesgos/" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

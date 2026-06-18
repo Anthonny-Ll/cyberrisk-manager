@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load riesgo_tags %}
+{% block titulo %}Matriz de Riesgos — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-grid-3x3 me-2"></i>Matriz de Riesgos 4×4</h2>
+    <div class="d-flex gap-2">
+        <a href="/riesgos/" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list-ul me-1"></i>Ver lista</a>
+        <button onclick="window.print()" class="btn btn-outline-primary btn-sm"><i class="bi bi-printer me-1"></i>Imprimir</button>
+    </div>
+</div>
+
+<!-- Leyenda -->
+<div class="d-flex gap-3 mb-3 flex-wrap">
+    <span><span class="badge celda-bajo px-3 py-2">Bajo (1–4)</span></span>
+    <span><span class="badge celda-medio px-3 py-2">Medio (5–8)</span></span>
+    <span><span class="badge celda-alto px-3 py-2">Alto (9–12)</span></span>
+    <span><span class="badge celda-critico px-3 py-2">Crítico (13–16)</span></span>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="matriz-tabla table text-center border mb-0">
+                <thead>
+                    <tr>
+                        <th class="axis-label" style="background:#1a237e;color:#fff;width:130px">Probabilidad / Impacto</th>
+                        <th class="axis-label" style="background:#1a237e;color:#fff">1 — Insignificante</th>
+                        <th class="axis-label" style="background:#1a237e;color:#fff">2 — Menor</th>
+                        <th class="axis-label" style="background:#1a237e;color:#fff">3 — Moderado</th>
+                        <th class="axis-label" style="background:#1a237e;color:#fff">4 — Catastrófico</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in rango reversed %}
+                    <tr>
+                        <td class="axis-label fw-semibold" style="background:#1a237e;color:#fff">
+                            {% if p == 4 %}4 — Casi seguro
+                            {% elif p == 3 %}3 — Probable
+                            {% elif p == 2 %}2 — Poco probable
+                            {% else %}1 — Rara vez{% endif %}
+                        </td>
+                        {% for i in rango %}
+                        {% with celda=matriz|dictsort:p %}
+                        {% with c=matriz %}
+                        <td class="celda-{{ c|get_item:p|get_item:i|get_item:'color' }} position-relative">
+                            <div class="fw-bold fs-5">{{ c|get_item:p|get_item:i|get_item:'valor' }}</div>
+                            <div class="small">{{ c|get_item:p|get_item:i|get_item:'nivel' }}</div>
+                            {% if c|get_item:p|get_item:i|get_item:'count' > 0 %}
+                            <span class="position-absolute top-0 end-0 badge bg-dark mt-1 me-1">
+                                {{ c|get_item:p|get_item:i|get_item:'count' }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        {% endwith %}{% endwith %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted mt-2 small text-end"><i class="bi bi-info-circle me-1"></i>El número en la esquina de cada celda indica la cantidad de riesgos registrados en esa posición.</p>
+    </div>
+</div>
+
+<!-- Tabla resumen de riesgos por celda -->
+<div class="card shadow-sm mt-3">
+    <div class="card-header fw-semibold">Riesgos posicionados en la matriz</div>
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover mb-0">
+            <thead><tr><th>ID</th><th>Activo</th><th>P</th><th>I</th><th>Valor</th><th>Nivel</th><th>Estado</th></tr></thead>
+            <tbody>
+                {% for p in rango reversed %}
+                    {% for i in rango %}
+                        {% for r in matriz|get_item:p|get_item:i|get_item:'riesgos' %}
+                        <tr>
+                            <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
+                            <td>{{ r.id_activo.nombre|truncatechars:30 }}</td>
+                            <td class="fw-bold">{{ r.probabilidad }}</td>
+                            <td class="fw-bold">{{ r.impacto }}</td>
+                            <td class="fw-bold">{{ r.riesgo_inherente }}</td>
+                            <td>
+                                {% if r.nivel_cualitativo == 'Bajo' %}<span class="badge bg-success">Bajo</span>
+                                {% elif r.nivel_cualitativo == 'Medio' %}<span class="badge bg-warning text-dark">Medio</span>
+                                {% elif r.nivel_cualitativo == 'Alto' %}<span class="badge bg-orange">Alto</span>
+                                {% else %}<span class="badge bg-danger">Crítico</span>{% endif %}
+                            </td>
+                            <td><small>{{ r.estado_riesgo }}</small></td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

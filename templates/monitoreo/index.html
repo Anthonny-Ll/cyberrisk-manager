@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block titulo %}Monitoreo — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-bell me-2"></i>Panel de Monitoreo y Alertas</h2>
+    <small class="text-muted">Fecha: {{ hoy|date:"d/m/Y" }}</small>
+</div>
+
+<!-- KPIs de monitoreo -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-4">
+        <div class="kpi-card border-start border-danger border-4">
+            <div class="kpi-icon text-danger"><i class="bi bi-exclamation-octagon"></i></div>
+            <div class="kpi-value text-danger">{{ criticos_sin_trat.count }}</div>
+            <div class="kpi-label">Riesgos críticos sin control</div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="kpi-card border-start border-4" style="border-color:#fd7e14!important">
+            <div class="kpi-icon" style="color:#fd7e14"><i class="bi bi-clock-history"></i></div>
+            <div class="kpi-value" style="color:#fd7e14">{{ controles_vencidos.count }}</div>
+            <div class="kpi-label">Controles vencidos</div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="kpi-card border-start border-warning border-4">
+            <div class="kpi-icon text-warning"><i class="bi bi-hourglass-split"></i></div>
+            <div class="kpi-value" style="color:#e6ac00">{{ residuales_pendientes.count }}</div>
+            <div class="kpi-label">Residuales pendientes de aceptación</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <!-- Progreso de controles -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-semibold"><i class="bi bi-bar-chart-steps me-2"></i>Progreso de Controles</div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="display-4 fw-bold text-primary">{{ pct_implementados }}%</div>
+                    <div class="text-muted small">controles implementados</div>
+                </div>
+                <div class="progress mb-2" style="height:16px">
+                    <div class="progress-bar bg-success" style="width:{{ pct_implementados }}%"></div>
+                </div>
+                <div class="text-center text-muted small">{{ implementados }} de {{ total_controles }} controles</div>
+            </div>
+        </div>
+    </div>
+    <!-- Estado de vulnerabilidades -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-semibold"><i class="bi bi-bug me-2"></i>Estado de Vulnerabilidades</div>
+            <div class="card-body">
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><span class="badge bg-danger me-2">Identificada</span></span>
+                        <strong>{{ vulns_abiertas }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><span class="badge bg-warning text-dark me-2">En tratamiento</span></span>
+                        <strong>{{ vulns_en_trat }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><span class="badge bg-success me-2">Resuelta</span></span>
+                        <strong>{{ vulns_resueltas }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Accesos rápidos -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header fw-semibold"><i class="bi bi-lightning me-2"></i>Acciones Rápidas</div>
+            <div class="card-body d-flex flex-column gap-2">
+                <a href="/riesgos/nuevo/" class="btn btn-outline-primary btn-sm"><i class="bi bi-plus me-1"></i>Nueva evaluación de riesgo</a>
+                <a href="/tratamiento/nuevo/" class="btn btn-outline-success btn-sm"><i class="bi bi-shield-check me-1"></i>Registrar control</a>
+                <a href="/vulnerabilidades/nuevo/" class="btn btn-outline-warning btn-sm"><i class="bi bi-bug me-1"></i>Registrar vulnerabilidad</a>
+                <a href="/reportes/ejecutivo/" class="btn btn-outline-secondary btn-sm"><i class="bi bi-file-earmark-text me-1"></i>Reporte ejecutivo</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alertas rojas -->
+{% if criticos_sin_trat %}
+<div class="card border-danger shadow-sm mb-3">
+    <div class="card-header bg-danger text-white fw-semibold"><i class="bi bi-exclamation-octagon-fill me-2"></i>Riesgos CRÍTICOS sin tratamiento asignado</div>
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+            <thead><tr><th>Riesgo</th><th>Activo</th><th>Amenaza</th><th>Valor</th><th>Acción</th></tr></thead>
+            <tbody>
+                {% for r in criticos_sin_trat %}
+                <tr>
+                    <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
+                    <td>{{ r.id_activo.nombre }}</td>
+                    <td>{{ r.id_amenaza.nombre }}</td>
+                    <td><span class="badge bg-danger">{{ r.riesgo_inherente }}</span></td>
+                    <td><a href="/tratamiento/nuevo/" class="btn btn-sm btn-danger py-0">Asignar control</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Controles vencidos -->
+{% if controles_vencidos %}
+<div class="card shadow-sm mb-3" style="border-color:#fd7e14">
+    <div class="card-header fw-semibold" style="background:#fff3e0"><i class="bi bi-clock-history me-2" style="color:#fd7e14"></i>Controles vencidos</div>
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+            <thead><tr><th>Control</th><th>Riesgo</th><th>Responsable</th><th>Fecha objetivo</th><th>Estado</th></tr></thead>
+            <tbody>
+                {% for c in controles_vencidos %}
+                <tr>
+                    <td>{{ c.nombre_control }}</td>
+                    <td><code>R-{{ c.id_riesgo.pk|stringformat:"03d" }}</code></td>
+                    <td>{{ c.responsable }}</td>
+                    <td class="text-danger fw-bold">{{ c.fecha_objetivo|date:"d/m/Y" }}</td>
+                    <td><a href="/tratamiento/{{ c.pk }}/editar/" class="btn btn-sm btn-outline-warning py-0">Actualizar</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if not criticos_sin_trat and not controles_vencidos and not residuales_pendientes %}
+<div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i>¡Sin alertas activas! El sistema no presenta situaciones críticas pendientes de atención.</div>
+{% endif %}
+{% endblock %}

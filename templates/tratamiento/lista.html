@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block titulo %}Tratamientos — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-shield-check me-2"></i>Tratamiento de Riesgos</h2>
+    {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+    <a href="/tratamiento/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nuevo Tratamiento</a>
+    {% endif %}
+</div>
+<div class="card mb-3 shadow-sm">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Estado</label>
+                <select name="estado" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Pendiente" {% if filtros.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                    <option value="En progreso" {% if filtros.estado == 'En progreso' %}selected{% endif %}>En progreso</option>
+                    <option value="Implementado" {% if filtros.estado == 'Implementado' %}selected{% endif %}>Implementado</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Tipo de control</label>
+                <select name="tipo" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Técnico" {% if filtros.tipo == 'Técnico' %}selected{% endif %}>Técnico</option>
+                    <option value="Administrativo" {% if filtros.tipo == 'Administrativo' %}selected{% endif %}>Administrativo</option>
+                    <option value="Físico" {% if filtros.tipo == 'Físico' %}selected{% endif %}>Físico</option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-search me-1"></i>Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr><th>ID</th><th>Control</th><th>Riesgo</th><th>Estrategia</th><th>Tipo</th><th>Responsable</th><th>Fecha objetivo</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for t in tratamientos %}
+                    <tr {% if t.esta_vencido %}class="table-warning"{% endif %}>
+                        <td><code>#{{ t.pk }}</code></td>
+                        <td class="fw-semibold">{{ t.nombre_control|truncatechars:30 }}</td>
+                        <td><code>R-{{ t.id_riesgo.pk|stringformat:"03d" }}</code> <small class="text-muted">{{ t.id_riesgo.nivel_cualitativo }}</small></td>
+                        <td>
+                            {% if t.estrategia == 'Mitigar' %}<span class="badge bg-primary">Mitigar</span>
+                            {% elif t.estrategia == 'Transferir' %}<span class="badge bg-info text-dark">Transferir</span>
+                            {% elif t.estrategia == 'Evitar' %}<span class="badge bg-secondary">Evitar</span>
+                            {% else %}<span class="badge bg-warning text-dark">Aceptar</span>{% endif %}
+                        </td>
+                        <td>{{ t.tipo_control }}</td>
+                        <td>{{ t.responsable|truncatechars:20 }}</td>
+                        <td>
+                            {{ t.fecha_objetivo|date:"d/m/Y" }}
+                            {% if t.esta_vencido %}<span class="badge bg-danger ms-1">VENCIDO</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if t.estado_control == 'Implementado' %}<span class="badge bg-success">Implementado</span>
+                            {% elif t.estado_control == 'En progreso' %}<span class="badge bg-warning text-dark">En progreso</span>
+                            {% else %}<span class="badge bg-secondary">Pendiente</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+                            <a href="/tratamiento/{{ t.pk }}/editar/" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="9" class="text-center text-muted py-4">No hay tratamientos registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

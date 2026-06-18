@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-server me-2"></i>{{ titulo }}</h2>
+    <div class="d-flex gap-2">
+        <a href="?{% if filtros.tipo %}tipo={{ filtros.tipo }}&{% endif %}{% if filtros.departamento %}departamento={{ filtros.departamento }}&{% endif %}{% if filtros.criticidad %}criticidad={{ filtros.criticidad }}&{% endif %}pdf=1" target="_blank" class="btn btn-danger btn-sm"><i class="bi bi-file-pdf me-1"></i>Exportar PDF</a>
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="bi bi-printer me-1"></i>Imprimir</button>
+    </div>
+</div>
+<div class="card mb-3 shadow-sm">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-sm-3"><label class="form-label mb-1">Tipo</label>
+                <select name="tipo" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Datos" {% if filtros.tipo == 'Datos' %}selected{% endif %}>Datos</option>
+                    <option value="Software" {% if filtros.tipo == 'Software' %}selected{% endif %}>Software</option>
+                    <option value="Hardware" {% if filtros.tipo == 'Hardware' %}selected{% endif %}>Hardware</option>
+                    <option value="Red" {% if filtros.tipo == 'Red' %}selected{% endif %}>Red</option>
+                    <option value="Servicio" {% if filtros.tipo == 'Servicio' %}selected{% endif %}>Servicio</option>
+                </select>
+            </div>
+            <div class="col-sm-3"><label class="form-label mb-1">Departamento</label>
+                <input type="text" name="departamento" class="form-control form-control-sm" value="{{ filtros.departamento }}">
+            </div>
+            <div class="col-sm-2"><label class="form-label mb-1">Criticidad</label>
+                <select name="criticidad" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option value="4" {% if filtros.criticidad == '4' %}selected{% endif %}>Crítica (4)</option>
+                    <option value="3" {% if filtros.criticidad == '3' %}selected{% endif %}>Alta (3)</option>
+                    <option value="2" {% if filtros.criticidad == '2' %}selected{% endif %}>Media (2)</option>
+                    <option value="1" {% if filtros.criticidad == '1' %}selected{% endif %}>Baja (1)</option>
+                </select>
+            </div>
+            <div class="col-sm-2"><button type="submit" class="btn btn-outline-primary btn-sm w-100">Filtrar</button></div>
+        </form>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+            <thead><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Departamento</th><th>C</th><th>I</th><th>D</th><th>Criticidad</th><th>Estado</th></tr></thead>
+            <tbody>
+                {% for a in activos %}
+                <tr>
+                    <td>{{ a.pk }}</td><td>{{ a.nombre }}</td><td>{{ a.tipo }}</td><td>{{ a.departamento }}</td>
+                    <td>{{ a.confidencialidad }}</td><td>{{ a.integridad }}</td><td>{{ a.disponibilidad }}</td>
+                    <td>{% if a.nivel_criticidad == 4 %}<span class="badge bg-danger">Crítico</span>{% elif a.nivel_criticidad == 3 %}<span class="badge bg-orange">Alto</span>{% elif a.nivel_criticidad == 2 %}<span class="badge bg-warning text-dark">Medio</span>{% else %}<span class="badge bg-success">Bajo</span>{% endif %}</td>
+                    <td>{{ a.estado }}</td>
+                </tr>
+                {% empty %}<tr><td colspan="9" class="text-center text-muted py-3">Sin resultados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<p class="text-muted small mt-2">Total: {{ activos.count }} activos</p>
+{% endblock %}

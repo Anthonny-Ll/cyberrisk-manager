@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex align-items-center mb-3">
+    <a href="/vulnerabilidades/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="page-title mb-0"><i class="bi bi-bug me-2"></i>{{ titulo }}</h2>
+</div>
+<div class="form-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="row g-3">
+            <div class="col-12"><label class="form-label">Nombre *</label>{{ form.nombre }}</div>
+            <div class="col-12"><label class="form-label">Descripción</label>{{ form.descripcion }}</div>
+            <div class="col-md-6"><label class="form-label">Activo afectado *</label>{{ form.id_activo }}</div>
+            <div class="col-md-3">
+                <label class="form-label">CVSS Score <small class="text-muted">(opcional)</small></label>
+                {{ form.cvss_score }}
+                <div class="form-text">Ingresa el score para sugerencia automática de severidad.</div>
+            </div>
+            <div class="col-md-3"><label class="form-label">Severidad *</label>{{ form.severidad }}</div>
+            <div class="col-12"><label class="form-label">Evidencia</label>{{ form.evidencia }}</div>
+            <div class="col-md-4"><label class="form-label">Estado</label>{{ form.estado }}</div>
+            <div class="col-12"><label class="form-label">Observaciones</label>{{ form.observaciones }}</div>
+        </div>
+        <hr class="my-3">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Guardar</button>
+            <a href="/vulnerabilidades/" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

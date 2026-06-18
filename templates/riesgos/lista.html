@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block titulo %}Riesgos — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Evaluaciones de Riesgo</h2>
+    <div class="d-flex gap-2">
+        <a href="/riesgos/matriz/" class="btn btn-outline-primary"><i class="bi bi-grid-3x3 me-1"></i>Ver Matriz</a>
+        {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+        <a href="/riesgos/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nueva Evaluación</a>
+        {% endif %}
+    </div>
+</div>
+<div class="card mb-3 shadow-sm">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Nivel de riesgo</label>
+                <select name="nivel" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Bajo" {% if filtros.nivel == 'Bajo' %}selected{% endif %}>Bajo</option>
+                    <option value="Medio" {% if filtros.nivel == 'Medio' %}selected{% endif %}>Medio</option>
+                    <option value="Alto" {% if filtros.nivel == 'Alto' %}selected{% endif %}>Alto</option>
+                    <option value="Crítico" {% if filtros.nivel == 'Crítico' %}selected{% endif %}>Crítico</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Activo</label>
+                <input type="text" name="activo" class="form-control form-control-sm" value="{{ filtros.activo }}" placeholder="Nombre del activo">
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Departamento</label>
+                <input type="text" name="departamento" class="form-control form-control-sm" value="{{ filtros.departamento }}" placeholder="Departamento">
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-search me-1"></i>Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr><th>ID</th><th>Activo</th><th>Amenaza</th><th>Vulnerabilidad</th>
+                    <th class="text-center">P</th><th class="text-center">I</th>
+                    <th class="text-center">P×I</th><th>Nivel</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in riesgos %}
+                    <tr>
+                        <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
+                        <td><a href="/activos/{{ r.id_activo.pk }}/" class="text-decoration-none">{{ r.id_activo.nombre|truncatechars:25 }}</a></td>
+                        <td>{{ r.id_amenaza.nombre|truncatechars:25 }}</td>
+                        <td>{{ r.id_vulnerabilidad.nombre|truncatechars:25 }}</td>
+                        <td class="text-center fw-bold">{{ r.probabilidad }}</td>
+                        <td class="text-center fw-bold">{{ r.impacto }}</td>
+                        <td class="text-center fw-bold fs-5">{{ r.riesgo_inherente }}</td>
+                        <td>
+                            {% if r.nivel_cualitativo == 'Bajo' %}<span class="badge bg-success">Bajo</span>
+                            {% elif r.nivel_cualitativo == 'Medio' %}<span class="badge bg-warning text-dark">Medio</span>
+                            {% elif r.nivel_cualitativo == 'Alto' %}<span class="badge bg-orange">Alto</span>
+                            {% else %}<span class="badge bg-danger">Crítico</span>{% endif %}
+                        </td>
+                        <td><small>{{ r.get_estado_riesgo_display }}</small></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+                                <a href="/riesgos/{{ r.pk }}/editar/" class="btn btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                                <a href="/tratamiento/nuevo/" class="btn btn-outline-success" title="Agregar control"><i class="bi bi-shield-check"></i></a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="10" class="text-center text-muted py-4">No hay evaluaciones de riesgo registradas.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

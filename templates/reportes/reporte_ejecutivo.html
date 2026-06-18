@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block titulo %}Reporte Ejecutivo — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-briefcase me-2"></i>{{ titulo }}</h2>
+    <div class="d-flex gap-2">
+        <a href="?pdf=1" target="_blank" class="btn btn-danger btn-sm"><i class="bi bi-file-pdf me-1"></i>Exportar PDF</a>
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="bi bi-printer me-1"></i>Imprimir</button>
+    </div>
+</div>
+<p class="text-muted">Generado el {{ fecha|date:"d \d\e F \d\e Y" }}</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold bg-primary text-white">Inventario de Activos</div>
+            <div class="card-body"><div class="fs-2 fw-bold text-primary">{{ activos_total }}</div><div class="text-muted">Activos activos registrados</div></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">Distribución de Riesgos</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-1"><span><span class="badge bg-success me-1">Bajo</span></span><strong>{{ riesgos_bajo }}</strong></div>
+                <div class="d-flex justify-content-between mb-1"><span><span class="badge bg-warning text-dark me-1">Medio</span></span><strong>{{ riesgos_medio }}</strong></div>
+                <div class="d-flex justify-content-between mb-1"><span><span class="badge bg-orange me-1">Alto</span></span><strong>{{ riesgos_alto }}</strong></div>
+                <div class="d-flex justify-content-between"><span><span class="badge bg-danger me-1">Crítico</span></span><strong>{{ riesgos_critico }}</strong></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">Estado de Controles</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-1"><span>Implementados</span><strong class="text-success">{{ controles_implementados }}</strong></div>
+                <div class="d-flex justify-content-between mb-1"><span>Pendientes</span><strong class="text-warning">{{ controles_pendientes }}</strong></div>
+                <div class="d-flex justify-content-between"><span>Vencidos</span><strong class="text-danger">{{ controles_vencidos }}</strong></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">Riesgos Residuales</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-1"><span>Aceptados</span><strong class="text-success">{{ residuales_aceptados }}</strong></div>
+                <div class="d-flex justify-content-between"><span>Pendientes de decisión</span><strong class="text-warning">{{ residuales_pendientes }}</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header fw-semibold">Conclusiones</div>
+    <div class="card-body">
+        <ul class="mb-0">
+            {% if riesgos_critico > 0 %}<li class="text-danger"><strong>Atención requerida:</strong> Existen {{ riesgos_critico }} riesgo(s) en nivel CRÍTICO.</li>{% endif %}
+            {% if controles_vencidos > 0 %}<li class="text-warning"><strong>Controles vencidos:</strong> {{ controles_vencidos }} control(es) superó su fecha objetivo sin implementarse.</li>{% endif %}
+            {% if residuales_pendientes > 0 %}<li class="text-info"><strong>Decisiones pendientes:</strong> {{ residuales_pendientes }} riesgo(s) residual(es) esperan aceptación formal.</li>{% endif %}
+            {% if riesgos_critico == 0 and controles_vencidos == 0 %}<li class="text-success">El sistema de gestión de riesgos opera sin alertas críticas activas.</li>{% endif %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

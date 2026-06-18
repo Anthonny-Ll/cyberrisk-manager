@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex align-items-center mb-3">
+    <a href="/tratamiento/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="page-title mb-0"><i class="bi bi-shield-check me-2"></i>{{ titulo }}</h2>
+</div>
+<div class="form-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="row g-3">
+            <div class="col-12"><label class="form-label">Riesgo asociado *</label>{{ form.id_riesgo }}</div>
+            <div class="col-md-4">
+                <label class="form-label">Estrategia *</label>
+                {{ form.estrategia }}
+                <div class="form-text">Si selecciona "Aceptar", debe justificarlo.</div>
+            </div>
+            <div class="col-md-4"><label class="form-label">Tipo de control *</label>{{ form.tipo_control }}</div>
+            <div class="col-md-4"><label class="form-label">Función del control *</label>{{ form.funcion_control }}</div>
+            <div class="col-12"><label class="form-label">Nombre del control *</label>{{ form.nombre_control }}</div>
+            <div class="col-12"><label class="form-label">Descripción del control *</label>{{ form.descripcion_ctrl }}</div>
+            <div class="col-md-6"><label class="form-label">Responsable *</label>{{ form.responsable }}</div>
+            <div class="col-md-3"><label class="form-label">Fecha objetivo *</label>{{ form.fecha_objetivo }}</div>
+            <div class="col-md-3"><label class="form-label">Estado</label>{{ form.estado_control }}</div>
+            <div class="col-12" id="justificacion-row">
+                <label class="form-label text-danger fw-semibold">Justificación (obligatoria para "Aceptar") *</label>
+                {{ form.justificacion }}
+                {% if form.justificacion.errors %}<div class="text-danger small">{{ form.justificacion.errors }}</div>{% endif %}
+            </div>
+        </div>
+        <hr class="my-3">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Guardar</button>
+            <a href="/tratamiento/" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

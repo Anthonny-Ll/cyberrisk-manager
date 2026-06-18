@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block titulo %}Vulnerabilidades — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-bug me-2"></i>Vulnerabilidades</h2>
+    {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+    <a href="/vulnerabilidades/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nueva Vulnerabilidad</a>
+    {% endif %}
+</div>
+<div class="card mb-3 shadow-sm">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Severidad</label>
+                <select name="severidad" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option value="Baja" {% if filtros.severidad == 'Baja' %}selected{% endif %}>Baja</option>
+                    <option value="Media" {% if filtros.severidad == 'Media' %}selected{% endif %}>Media</option>
+                    <option value="Alta" {% if filtros.severidad == 'Alta' %}selected{% endif %}>Alta</option>
+                    <option value="Crítica" {% if filtros.severidad == 'Crítica' %}selected{% endif %}>Crítica</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Estado</label>
+                <select name="estado" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Identificada" {% if filtros.estado == 'Identificada' %}selected{% endif %}>Identificada</option>
+                    <option value="En tratamiento" {% if filtros.estado == 'En tratamiento' %}selected{% endif %}>En tratamiento</option>
+                    <option value="Resuelta" {% if filtros.estado == 'Resuelta' %}selected{% endif %}>Resuelta</option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-search me-1"></i>Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>ID</th><th>Nombre</th><th>Activo</th><th>CVSS</th><th>Severidad</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for v in vulnerabilidades %}
+                <tr>
+                    <td><code>#{{ v.pk }}</code></td>
+                    <td class="fw-semibold">{{ v.nombre }}</td>
+                    <td><a href="/activos/{{ v.id_activo.pk }}/" class="text-decoration-none">{{ v.id_activo.nombre }}</a></td>
+                    <td>{% if v.cvss_score %}<span class="badge bg-light text-dark border fw-bold">{{ v.cvss_score }}</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+                    <td>
+                        {% if v.severidad == 'Baja' %}<span class="badge bg-success">Baja</span>
+                        {% elif v.severidad == 'Media' %}<span class="badge bg-warning text-dark">Media</span>
+                        {% elif v.severidad == 'Alta' %}<span class="badge bg-orange">Alta</span>
+                        {% else %}<span class="badge bg-danger">Crítica</span>{% endif %}
+                    </td>
+                    <td><span class="badge {% if v.estado == 'Resuelta' %}bg-success{% elif v.estado == 'En tratamiento' %}bg-warning text-dark{% else %}bg-danger{% endif %}">{{ v.estado }}</span></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+                            <a href="/vulnerabilidades/{{ v.pk }}/editar/" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            {% if v.estado != 'Resuelta' %}
+                            <form method="post" action="/vulnerabilidades/{{ v.pk }}/resolver/" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-success" data-confirm="¿Marcar '{{ v.nombre }}' como resuelta?"><i class="bi bi-check-lg"></i></button>
+                            </form>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No hay vulnerabilidades registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

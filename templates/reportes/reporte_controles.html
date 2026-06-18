@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-shield-check me-2"></i>{{ titulo }}</h2>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="bi bi-printer me-1"></i>Imprimir</button>
+</div>
+<div class="card mb-3 shadow-sm"><div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-sm-3"><label class="form-label mb-1">Estado</label>
+            <select name="estado" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option value="Pendiente" {% if filtros.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="En progreso" {% if filtros.estado == 'En progreso' %}selected{% endif %}>En progreso</option>
+                <option value="Implementado" {% if filtros.estado == 'Implementado' %}selected{% endif %}>Implementado</option>
+            </select>
+        </div>
+        <div class="col-sm-3"><label class="form-label mb-1">Tipo</label>
+            <select name="tipo" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option value="Técnico" {% if filtros.tipo == 'Técnico' %}selected{% endif %}>Técnico</option>
+                <option value="Administrativo" {% if filtros.tipo == 'Administrativo' %}selected{% endif %}>Administrativo</option>
+                <option value="Físico" {% if filtros.tipo == 'Físico' %}selected{% endif %}>Físico</option>
+            </select>
+        </div>
+        <div class="col-sm-2"><button type="submit" class="btn btn-outline-primary btn-sm w-100">Filtrar</button></div>
+    </form>
+</div></div>
+<div class="card shadow-sm"><div class="card-body p-0">
+    <table class="table table-sm mb-0">
+        <thead><tr><th>ID</th><th>Control</th><th>Riesgo</th><th>Estrategia</th><th>Tipo</th><th>Responsable</th><th>Fecha obj.</th><th>Estado</th></tr></thead>
+        <tbody>
+            {% for c in controles %}
+            <tr {% if c.esta_vencido %}class="table-warning"{% endif %}>
+                <td>{{ c.pk }}</td><td>{{ c.nombre_control }}</td>
+                <td><code>R-{{ c.id_riesgo.pk|stringformat:"03d" }}</code></td>
+                <td>{{ c.estrategia }}</td><td>{{ c.tipo_control }}</td><td>{{ c.responsable }}</td>
+                <td>{{ c.fecha_objetivo|date:"d/m/Y" }}{% if c.esta_vencido %} <span class="badge bg-danger">vencido</span>{% endif %}</td>
+                <td>{% if c.estado_control == 'Implementado' %}<span class="badge bg-success">Implementado</span>{% elif c.estado_control == 'En progreso' %}<span class="badge bg-warning text-dark">En progreso</span>{% else %}<span class="badge bg-secondary">Pendiente</span>{% endif %}</td>
+            </tr>
+            {% empty %}<tr><td colspan="8" class="text-center text-muted py-3">Sin resultados.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% endblock %}

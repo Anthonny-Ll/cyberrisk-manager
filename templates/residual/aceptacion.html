@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block titulo %}Decisión de Aceptación — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex align-items-center mb-3">
+    <a href="/residual/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="page-title mb-0"><i class="bi bi-clipboard-check me-2"></i>Decisión de Aceptación del Riesgo Residual</h2>
+</div>
+<div class="alert alert-warning small"><i class="bi bi-shield-exclamation me-1"></i>Solo el <strong>Auditor / Alta Dirección</strong> puede registrar la aceptación formal del riesgo residual (RN-07).</div>
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">Resumen del riesgo residual</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-6">ID Residual</dt><dd class="col-sm-6"><code>RR-{{ residual.pk|stringformat:"03d" }}</code></dd>
+                    <dt class="col-sm-6">Riesgo inherente</dt><dd class="col-sm-6"><span class="badge {{ residual.id_riesgo.get_nivel_badge }}">{{ residual.id_riesgo.nivel_cualitativo }} ({{ residual.id_riesgo.riesgo_inherente }})</span></dd>
+                    <dt class="col-sm-6">Activo</dt><dd class="col-sm-6">{{ residual.id_riesgo.id_activo.nombre }}</dd>
+                    <dt class="col-sm-6">Prob. residual</dt><dd class="col-sm-6"><strong>{{ residual.prob_residual }}</strong></dd>
+                    <dt class="col-sm-6">Impacto residual</dt><dd class="col-sm-6"><strong>{{ residual.impacto_residual }}</strong></dd>
+                    <dt class="col-sm-6">Riesgo residual</dt><dd class="col-sm-6"><strong class="fs-5">{{ residual.riesgo_residual }}</strong></dd>
+                    <dt class="col-sm-6">Nivel residual</dt><dd class="col-sm-6"><span class="badge {{ residual.get_nivel_badge }}">{{ residual.nivel_cualitativo }}</span></dd>
+                    <dt class="col-sm-6">Control aplicado</dt><dd class="col-sm-6">{{ residual.id_tratamiento.nombre_control }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="form-card shadow-sm">
+            <h5 class="mb-3">Registrar decisión formal</h5>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Decisión *</label>
+                        {{ form.aceptacion }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Responsable de la aprobación *</label>
+                        {{ form.resp_aprobacion }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Observaciones</label>
+                        {{ form.observaciones }}
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Registrar decisión</button>
+                    <a href="/residual/" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

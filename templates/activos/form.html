@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }} — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex align-items-center mb-3">
+    <a href="/activos/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="page-title mb-0"><i class="bi bi-server me-2"></i>{{ titulo }}</h2>
+</div>
+
+<div class="form-card">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label">Nombre del activo *</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Tipo *</label>
+                {{ form.tipo }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">Descripción</label>
+                {{ form.descripcion }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Propietario *</label>
+                {{ form.propietario }}
+                {% if form.propietario.errors %}<div class="text-danger small">{{ form.propietario.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Departamento *</label>
+                {{ form.departamento }}
+                {% if form.departamento.errors %}<div class="text-danger small">{{ form.departamento.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-12">
+                <div class="form-check">
+                    {{ form.datos_sensibles }}
+                    <label class="form-check-label" for="id_datos_sensibles">
+                        Contiene datos sensibles (LOPDP) — fuerza Confidencialidad = 4
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Confidencialidad (C) *</label>
+                {{ form.confidencialidad }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Integridad (I) *</label>
+                {{ form.integridad }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Disponibilidad (D) *</label>
+                {{ form.disponibilidad }}
+            </div>
+
+            <!-- Previsualización de criticidad -->
+            <div class="col-12">
+                <div class="alert alert-info py-2 small" id="preview-criticidad">
+                    <i class="bi bi-info-circle me-1"></i>
+                    La criticidad se calcula como: <strong>max(C, I, D)</strong>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Estado</label>
+                {{ form.estado }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">Observaciones</label>
+                {{ form.observaciones }}
+            </div>
+        </div>
+
+        <hr class="my-3">
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Guardar</button>
+            <a href="/activos/" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

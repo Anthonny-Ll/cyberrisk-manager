@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% block titulo %}Dashboard — CyberRisk Manager{% endblock %}
+
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="page-title mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+        <small class="text-muted">Resumen ejecutivo del estado de riesgos</small>
+    </div>
+    <a href="/riesgos/nuevo/" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Nueva Evaluación
+    </a>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-primary border-4">
+            <div class="kpi-icon text-primary"><i class="bi bi-server"></i></div>
+            <div class="kpi-value">{{ activos_total }}</div>
+            <div class="kpi-label">Activos registrados</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-secondary border-4">
+            <div class="kpi-icon text-secondary"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="kpi-value">{{ riesgos_total }}</div>
+            <div class="kpi-label">Riesgos evaluados</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-warning border-4">
+            <div class="kpi-icon text-warning"><i class="bi bi-shield-exclamation"></i></div>
+            <div class="kpi-value">{{ riesgos_sin_tratamiento }}</div>
+            <div class="kpi-label">Sin tratamiento</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-danger border-4">
+            <div class="kpi-icon text-danger"><i class="bi bi-exclamation-octagon"></i></div>
+            <div class="kpi-value">{{ riesgos_critico }}</div>
+            <div class="kpi-label">Riesgos críticos</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-success border-4">
+            <div class="kpi-icon text-success"><i class="bi bi-check-circle"></i></div>
+            <div class="kpi-value text-success">{{ riesgos_bajo }}</div>
+            <div class="kpi-label">Riesgos bajos</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-warning border-4">
+            <div class="kpi-icon" style="color:#ffc107"><i class="bi bi-dash-circle"></i></div>
+            <div class="kpi-value" style="color:#e6ac00">{{ riesgos_medio }}</div>
+            <div class="kpi-label">Riesgos medios</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-4" style="border-color:#fd7e14!important">
+            <div class="kpi-icon" style="color:#fd7e14"><i class="bi bi-exclamation-circle"></i></div>
+            <div class="kpi-value" style="color:#fd7e14">{{ riesgos_alto }}</div>
+            <div class="kpi-label">Riesgos altos</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="kpi-card border-start border-4" style="border-color:#6c757d!important">
+            <div class="kpi-icon text-muted"><i class="bi bi-clock-history"></i></div>
+            <div class="kpi-value text-muted">{{ controles_vencidos }}</div>
+            <div class="kpi-label">Controles vencidos</div>
+        </div>
+    </div>
+</div>
+
+<!-- Panel de Alertas -->
+{% if alertas_rojas or alertas_naranja or alertas_amarillo %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-bell-fill text-danger me-2"></i>Panel de Alertas Activas
+    </div>
+    <div class="card-body p-3">
+        {% for alerta in alertas_rojas %}
+        <div class="alert alert-danger py-2 mb-2 d-flex align-items-center">
+            <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i>
+            <div>
+                <strong>CRÍTICO:</strong> {{ alerta.id_activo.nombre }} — Riesgo R-{{ alerta.pk|stringformat:"03d" }} sin tratamiento asignado.
+                <a href="/tratamiento/nuevo/?riesgo={{ alerta.pk }}" class="ms-2 btn btn-sm btn-danger py-0">Asignar control</a>
+            </div>
+        </div>
+        {% endfor %}
+        {% for ctrl in alertas_naranja %}
+        <div class="alert py-2 mb-2 d-flex align-items-center" style="background:#fff3cd;border-color:#ffc107">
+            <i class="bi bi-clock-history me-2 fs-5 text-warning"></i>
+            <div>
+                <strong>VENCIDO:</strong> Control "{{ ctrl.nombre_control }}" — fecha objetivo: {{ ctrl.fecha_objetivo }} ({{ ctrl.get_estado_control_display }})
+            </div>
+        </div>
+        {% endfor %}
+        {% for res in alertas_amarillo %}
+        <div class="alert alert-warning py-2 mb-2 d-flex align-items-center">
+            <i class="bi bi-hourglass-split me-2 fs-5"></i>
+            <div>
+                <strong>PENDIENTE:</strong> Riesgo residual RR-{{ res.pk|stringformat:"03d" }} pendiente de aceptación.
+                <a href="/residual/{{ res.pk }}/aceptar/" class="ms-2 btn btn-sm btn-warning py-0">Revisar</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Gráfico + Últimos riesgos -->
+<div class="row g-3">
+    <!-- Gráfico de barras -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">
+                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Distribución de Riesgos por Nivel
+            </div>
+            <div class="card-body">
+                <canvas id="graficoRiesgos" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos riesgos -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold d-flex justify-content-between">
+                <span><i class="bi bi-clock-history me-2 text-primary"></i>Últimas Evaluaciones de Riesgo</span>
+                <a href="/riesgos/" class="btn btn-sm btn-outline-primary py-0">Ver todos</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Activo</th>
+                                <th>P×I</th>
+                                <th>Nivel</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in ultimos_riesgos %}
+                            <tr>
+                                <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
+                                <td>{{ r.id_activo.nombre|truncatechars:30 }}</td>
+                                <td class="fw-bold">{{ r.riesgo_inherente }}</td>
+                                <td>
+                                    <span class="badge {{ r.get_nivel_badge }}">{{ r.nivel_cualitativo }}</span>
+                                </td>
+                                <td><small class="text-muted">{{ r.get_estado_riesgo_display }}</small></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted py-3">No hay evaluaciones registradas</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Gráfico de barras con datos desde contexto Django
+const ctx = document.getElementById('graficoRiesgos').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ datos_grafico.labels|safe }},
+        datasets: [{
+            label: 'Cantidad de Riesgos',
+            data: {{ datos_grafico.datos|safe }},
+            backgroundColor: {{ datos_grafico.colores|safe }},
+            borderRadius: 6,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.raw} riesgos` } }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 },
+                grid: { color: '#f0f0f0' }
+            },
+            x: { grid: { display: false } }
+        }
+    }
+});
+</script>
+{% endblock %}

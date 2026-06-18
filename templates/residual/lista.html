@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block titulo %}Riesgo Residual — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Riesgos Residuales</h2>
+    {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+    <a href="/residual/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nuevo Residual</a>
+    {% endif %}
+</div>
+<div class="card mb-3 shadow-sm">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Nivel residual</label>
+                <select name="nivel" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Bajo" {% if filtros.nivel == 'Bajo' %}selected{% endif %}>Bajo</option>
+                    <option value="Medio" {% if filtros.nivel == 'Medio' %}selected{% endif %}>Medio</option>
+                    <option value="Alto" {% if filtros.nivel == 'Alto' %}selected{% endif %}>Alto</option>
+                    <option value="Crítico" {% if filtros.nivel == 'Crítico' %}selected{% endif %}>Crítico</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Decisión</label>
+                <select name="decision" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option value="Aceptado" {% if filtros.decision == 'Aceptado' %}selected{% endif %}>Aceptado</option>
+                    <option value="Rechazado" {% if filtros.decision == 'Rechazado' %}selected{% endif %}>Rechazado</option>
+                    <option value="Pendiente" {% if filtros.decision == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-search me-1"></i>Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr><th>ID</th><th>Riesgo inherente</th><th>P res.</th><th>I res.</th><th>Residual</th><th>Nivel</th><th>Decisión</th><th>Aprobado por</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in residuales %}
+                    <tr>
+                        <td><code>RR-{{ r.pk|stringformat:"03d" }}</code></td>
+                        <td>
+                            <code>R-{{ r.id_riesgo.pk|stringformat:"03d" }}</code>
+                            <span class="badge {{ r.id_riesgo.get_nivel_badge }} ms-1">{{ r.id_riesgo.nivel_cualitativo }} ({{ r.id_riesgo.riesgo_inherente }})</span>
+                        </td>
+                        <td class="fw-bold text-center">{{ r.prob_residual }}</td>
+                        <td class="fw-bold text-center">{{ r.impacto_residual }}</td>
+                        <td class="fw-bold text-center fs-5">{{ r.riesgo_residual }}</td>
+                        <td><span class="badge {{ r.get_nivel_badge }}">{{ r.nivel_cualitativo }}</span></td>
+                        <td>
+                            {% if r.aceptacion == 'Aceptado' %}<span class="badge bg-success">Aceptado</span>
+                            {% elif r.aceptacion == 'Rechazado' %}<span class="badge bg-danger">Rechazado</span>
+                            {% else %}<span class="badge bg-warning text-dark">Pendiente</span>{% endif %}
+                        </td>
+                        <td><small>{{ r.resp_aprobacion|default:"—" }}</small></td>
+                        <td>
+                            {% if request.user.rol in 'administrador,auditor' or request.user.is_superuser %}
+                            {% if r.aceptacion == 'Pendiente' %}
+                            <a href="/residual/{{ r.pk }}/aceptar/" class="btn btn-sm btn-outline-primary" title="Registrar decisión"><i class="bi bi-clipboard-check"></i></a>
+                            {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="9" class="text-center text-muted py-4">No hay riesgos residuales registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

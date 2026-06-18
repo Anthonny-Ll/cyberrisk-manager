@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block titulo %}Amenazas — CyberRisk Manager{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="page-title mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Amenazas</h2>
+    {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+    <a href="/amenazas/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nueva Amenaza</a>
+    {% endif %}
+</div>
+<div class="card mb-3 shadow-sm">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Tipo</label>
+                <select name="tipo" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Natural" {% if filtros.tipo == 'Natural' %}selected{% endif %}>Natural</option>
+                    <option value="Humana deliberada" {% if filtros.tipo == 'Humana deliberada' %}selected{% endif %}>Humana deliberada</option>
+                    <option value="Humana accidental" {% if filtros.tipo == 'Humana accidental' %}selected{% endif %}>Humana accidental</option>
+                    <option value="Tecnológica" {% if filtros.tipo == 'Tecnológica' %}selected{% endif %}>Tecnológica</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label mb-1">Fuente</label>
+                <select name="fuente" class="form-select form-select-sm">
+                    <option value="">Todas</option>
+                    <option value="Externa" {% if filtros.fuente == 'Externa' %}selected{% endif %}>Externa</option>
+                    <option value="Interna" {% if filtros.fuente == 'Interna' %}selected{% endif %}>Interna</option>
+                    <option value="Mixta" {% if filtros.fuente == 'Mixta' %}selected{% endif %}>Mixta</option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-search me-1"></i>Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Fuente</th><th>Activos asociados</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+                {% for amenaza in amenazas %}
+                <tr>
+                    <td><code>#{{ amenaza.pk }}</code></td>
+                    <td class="fw-semibold">{{ amenaza.nombre }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ amenaza.tipo_amenaza }}</span></td>
+                    <td>{{ amenaza.fuente_amenaza }}</td>
+                    <td><span class="badge bg-secondary">{{ amenaza.activos.count }}</span></td>
+                    <td><span class="badge {% if amenaza.estado == 'Activo' %}bg-success{% else %}bg-secondary{% endif %}">{{ amenaza.estado }}</span></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+                            <a href="/amenazas/{{ amenaza.pk }}/editar/" class="btn btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                            {% if amenaza.estado == 'Activo' %}
+                            <form method="post" action="/amenazas/{{ amenaza.pk }}/desactivar/" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger" data-confirm="¿Desactivar amenaza '{{ amenaza.nombre }}'?"><i class="bi bi-archive"></i></button>
+                            </form>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}<tr><td colspan="7" class="text-center text-muted py-4">No hay amenazas registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
