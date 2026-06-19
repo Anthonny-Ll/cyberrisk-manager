@@ -1,5 +1,5 @@
-"""
-Configuración principal de CyberRisk Manager.
+﻿"""
+Configuración principal de CyberSave.
 Django 4.2 LTS — SQLite — Bootstrap 5 CDN
 """
 from pathlib import Path

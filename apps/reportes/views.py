@@ -1,4 +1,4 @@
-"""Vistas de reportes con filtros y exportación PDF."""
+﻿"""Vistas de reportes con filtros y exportación PDF."""
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -112,7 +112,7 @@ def _pdf_header(canvas, doc, titulo):
     canvas.rect(0, doc.pagesize[1] - 2*cm, doc.pagesize[0], 2*cm, fill=True, stroke=False)
     canvas.setFillColorRGB(1, 1, 1)
     canvas.setFont('Helvetica-Bold', 14)
-    canvas.drawString(1*cm, doc.pagesize[1] - 1.3*cm, 'CyberRisk Manager')
+    canvas.drawString(1*cm, doc.pagesize[1] - 1.3*cm, 'CyberSave')
     canvas.setFont('Helvetica', 10)
     canvas.drawRightString(doc.pagesize[0] - 1*cm, doc.pagesize[1] - 1.3*cm, titulo)
     canvas.restoreState()
@@ -218,7 +218,7 @@ def generar_pdf_ejecutivo(ctx):
     styles = getSampleStyleSheet()
     titulo = ctx['titulo']
     elementos = [
-        Paragraph('CyberRisk Manager', styles['Title']),
+        Paragraph('CyberSave', styles['Title']),
         Paragraph(titulo, styles['Heading2']),
         Paragraph(f"Fecha: {ctx['fecha']}", styles['Normal']),
         Spacer(1, 0.5*cm),

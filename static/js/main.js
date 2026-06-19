@@ -1,4 +1,4 @@
-/* CyberRisk Manager — JavaScript principal */
+﻿/* CyberSave — JavaScript principal */
 
 // Toggle del menú lateral
 document.addEventListener('DOMContentLoaded', function () {

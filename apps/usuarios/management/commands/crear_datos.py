@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
-Comando para crear datos de prueba del sistema CyberRisk Manager.
+Comando para crear datos de prueba del sistema CyberSave.
 Uso: python manage.py crear_datos
 """
 from django.core.management.base import BaseCommand

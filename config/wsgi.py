@@ -1,4 +1,4 @@
-"""WSGI config para CyberRisk Manager."""
+﻿"""WSGI config para CyberSave."""
 import os
 from django.core.wsgi import get_wsgi_application
 

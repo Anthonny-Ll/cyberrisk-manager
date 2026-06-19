@@ -1,4 +1,4 @@
-"""URLs principales de CyberRisk Manager."""
+﻿"""URLs principales de CyberSave."""
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect

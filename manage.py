@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-"""Punto de entrada de Django para CyberRisk Manager."""
+﻿#!/usr/bin/env python
+"""Punto de entrada de Django para CyberSave."""
 import os
 import sys
 
