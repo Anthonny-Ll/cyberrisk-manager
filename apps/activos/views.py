@@ -84,14 +84,3 @@ def desactivar_activo(request, pk):
         registrar_log(request.user, 'desactivar', 'Activo', activo.pk, f'Activo desactivado: {activo.nombre}')
         messages.warning(request, f'Activo "{activo.nombre}" desactivado.')
     return redirect('/activos/')
-
-@login_required
-def eliminar_activo(request, pk):
-    """Eliminación física del activo."""
-    activo = get_object_or_404(Activo, pk=pk)
-    if request.method == 'POST':
-        nombre = activo.nombre
-        activo.delete()
-        registrar_log(request.user, 'eliminar', 'Activo', pk, f'Activo eliminado: {nombre}')
-        messages.success(request, f'Activo "{nombre}" eliminado por completo.')
-    return redirect('/activos/')

@@ -109,13 +109,6 @@
                                     </button>
                                 </form>
                                 {% endif %}
-                                <form method="post" action="/activos/{{ activo.pk }}/eliminar/" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger" title="Eliminar definitivamente"
-                                            data-confirm="¿Estás seguro de eliminar PERMANENTEMENTE el activo '{{ activo.nombre }}'? Se borrarán los riesgos asociados.">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>

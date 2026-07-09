@@ -6,6 +6,5 @@ urlpatterns = [
     path('vulnerabilidades/nuevo/', views.crear_vulnerabilidad, name='vulnerabilidades_crear'),
     path('vulnerabilidades/<int:pk>/editar/', views.editar_vulnerabilidad, name='vulnerabilidades_editar'),
     path('vulnerabilidades/<int:pk>/resolver/', views.desactivar_vulnerabilidad, name='vulnerabilidades_resolver'),
-    path('vulnerabilidades/<int:pk>/eliminar/', views.eliminar_vulnerabilidad, name='vulnerabilidades_eliminar'),
     path('vulnerabilidades/api/buscar-cve/', views.api_buscar_cve, name='api_buscar_cve'),
 ]

@@ -63,16 +63,6 @@ def desactivar_vulnerabilidad(request, pk):
     return redirect('/vulnerabilidades/')
 
 @login_required
-def eliminar_vulnerabilidad(request, pk):
-    vuln = get_object_or_404(Vulnerabilidad, pk=pk)
-    if request.method == 'POST':
-        nombre = vuln.nombre
-        vuln.delete()
-        registrar_log(request.user, 'eliminar', 'Vulnerabilidad', pk, f'Vulnerabilidad eliminada: {nombre}')
-        messages.error(request, f'Vulnerabilidad "{nombre}" eliminada de la base de datos.')
-    return redirect('/vulnerabilidades/')
-
-@login_required
 def api_buscar_cve(request):
     """Consulta la API pública del NIST NVD para un CVE específico."""
     cve_id = request.GET.get('cve_id', '').strip().upper()
