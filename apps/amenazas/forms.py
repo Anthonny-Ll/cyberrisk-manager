@@ -1,4 +1,5 @@
 from django import forms
+from apps.validadores import validar_texto_descriptivo
 from .models import Amenaza
 
 
@@ -15,3 +16,12 @@ class AmenazaForm(forms.ModelForm):
             'estado': forms.Select(attrs={'class': 'form-select'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
+
+    def clean_nombre(self):
+        return validar_texto_descriptivo(self.cleaned_data.get('nombre'), minimo=5, campo='El nombre de la amenaza')
+
+    def clean_activos(self):
+        activos = self.cleaned_data.get('activos')
+        if not activos or activos.count() == 0:
+            raise forms.ValidationError('Debe asociar la amenaza a al menos un activo existente.')
+        return activos

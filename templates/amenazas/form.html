@@ -15,8 +15,9 @@
             <div class="col-md-6"><label class="form-label">Tipo de amenaza *</label>{{ form.tipo_amenaza }}</div>
             <div class="col-md-6"><label class="form-label">Fuente *</label>{{ form.fuente_amenaza }}</div>
             <div class="col-12">
-                <label class="form-label">Activos asociados <small class="text-muted">(Ctrl+clic para seleccionar varios)</small></label>
+                <label class="form-label">Activos asociados * <small class="text-muted">(Ctrl+clic para seleccionar varios)</small></label>
                 {{ form.activos }}
+                {% if form.activos.errors %}<div class="text-danger small">{{ form.activos.errors }}</div>{% endif %}
             </div>
             <div class="col-md-4"><label class="form-label">Estado</label>{{ form.estado }}</div>
             <div class="col-12"><label class="form-label">Observaciones</label>{{ form.observaciones }}</div>

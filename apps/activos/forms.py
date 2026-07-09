@@ -1,4 +1,5 @@
 from django import forms
+from apps.validadores import validar_texto_descriptivo
 from .models import Activo
 
 
@@ -13,7 +14,7 @@ class ActivoForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'form-select'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'propietario': forms.Select(attrs={'class': 'form-select'}),
-            'departamento': forms.TextInput(attrs={'class': 'form-control'}),
+            'departamento': forms.Select(attrs={'class': 'form-select'}),
             'confidencialidad': forms.Select(attrs={'class': 'form-select', 'id': 'id_confidencialidad'}),
             'integridad': forms.Select(attrs={'class': 'form-select', 'id': 'id_integridad'}),
             'disponibilidad': forms.Select(attrs={'class': 'form-select', 'id': 'id_disponibilidad'}),
@@ -21,6 +22,9 @@ class ActivoForm(forms.ModelForm):
             'estado': forms.Select(attrs={'class': 'form-select'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
+
+    def clean_nombre(self):
+        return validar_texto_descriptivo(self.cleaned_data.get('nombre'), minimo=5, campo='El nombre del activo')
 
     def clean(self):
         cleaned_data = super().clean()

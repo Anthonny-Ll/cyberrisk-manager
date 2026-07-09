@@ -1,18 +1,46 @@
 from django import forms
+from apps.validadores import validar_texto_descriptivo
 from .models import Vulnerabilidad
 
 
 class VulnerabilidadForm(forms.ModelForm):
     class Meta:
         model = Vulnerabilidad
-        fields = ['nombre', 'descripcion', 'id_activo', 'cvss_score', 'severidad', 'evidencia', 'estado', 'observaciones']
+        fields = ['nombre', 'descripcion', 'id_activo', 'cvss_score', 'cvss_vector',
+                  'severidad', 'evidencia', 'estado', 'observaciones']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'id_activo': forms.Select(attrs={'class': 'form-select'}),
-            'cvss_score': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0', 'max': '10', 'id': 'id_cvss_score'}),
+            'cvss_score': forms.NumberInput(attrs={
+                'class': 'form-control fw-bold', 'step': '0.1', 'min': '0', 'max': '10',
+                'id': 'id_cvss_score', 'readonly': 'readonly'}),
+            'cvss_vector': forms.TextInput(attrs={
+                'class': 'form-control font-monospace small', 'id': 'id_cvss_vector', 'readonly': 'readonly'}),
             'severidad': forms.Select(attrs={'class': 'form-select', 'id': 'id_severidad'}),
             'evidencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'estado': forms.Select(attrs={'class': 'form-select'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
+
+    def clean_nombre(self):
+        return validar_texto_descriptivo(self.cleaned_data.get('nombre'), minimo=5, campo='El nombre de la vulnerabilidad')
+
+    def clean(self):
+        cleaned = super().clean()
+        # La severidad se deshabilita en el widget para que solo la calcule la calculadora CVSS,
+        # asi que su valor no llega en el POST: se recalcula aqui a partir del score.
+        cvss_vector = cleaned.get('cvss_vector')
+        cvss_score = cleaned.get('cvss_score')
+        if not cvss_vector or cvss_score is None:
+            raise forms.ValidationError(
+                'Debe usar la calculadora CVSS para obtener un puntaje y vector reales antes de guardar.'
+            )
+        cleaned['severidad'] = Vulnerabilidad._cvss_a_severidad(cvss_score)
+        estado = cleaned.get('estado')
+        evidencia = (cleaned.get('evidencia') or '').strip()
+        if estado in ('En tratamiento', 'Resuelta') and len(evidencia) < 10:
+            raise forms.ValidationError(
+                f'Para marcar el estado como "{estado}" debe documentar evidencia (mínimo 10 caracteres).'
+            )
+        return cleaned

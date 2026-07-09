@@ -1,26 +1,153 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}{{ titulo }} — CyberSave{% endblock %}
 {% block contenido %}
 <div class="d-flex align-items-center mb-3">
     <a href="/vulnerabilidades/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
     <h2 class="page-title mb-0"><i class="bi bi-bug me-2"></i>{{ titulo }}</h2>
 </div>
-<div class="form-card">
-    <form method="post" novalidate>
+<div class="form-card" style="max-width:1000px">
+    <form method="post" novalidate id="form-vulnerabilidad">
         {% csrf_token %}
         {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
         <div class="row g-3">
-            <div class="col-12"><label class="form-label">Nombre *</label>{{ form.nombre }}</div>
+            <div class="col-12">
+                <label class="form-label">Nombre *</label>{{ form.nombre }}
+                {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
+            </div>
             <div class="col-12"><label class="form-label">Descripción</label>{{ form.descripcion }}</div>
             <div class="col-md-6"><label class="form-label">Activo afectado *</label>{{ form.id_activo }}</div>
-            <div class="col-md-3">
-                <label class="form-label">CVSS Score <small class="text-muted">(opcional)</small></label>
-                {{ form.cvss_score }}
-                <div class="form-text">Ingresa el score para sugerencia automática de severidad.</div>
+            <div class="col-md-6">
+                <label class="form-label">Estado</label>{{ form.estado }}
             </div>
-            <div class="col-md-3"><label class="form-label">Severidad *</label>{{ form.severidad }}</div>
-            <div class="col-12"><label class="form-label">Evidencia</label>{{ form.evidencia }}</div>
-            <div class="col-md-4"><label class="form-label">Estado</label>{{ form.estado }}</div>
+        </div>
+
+        <hr class="my-3">
+
+        <!-- Calculadora CVSS v3.1 -->
+        <div class="card border-primary mb-3">
+            <div class="card-header bg-primary text-white fw-semibold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-calculator me-2"></i>Calculadora CVSS v3.1</span>
+                <small class="fw-normal">Seleccione cada métrica para calcular el puntaje real</small>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold mb-1">Vector de Ataque (AV)</label>
+                        <div class="btn-group w-100 flex-wrap" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="AV" name="m_AV" id="av_n" value="0.85" data-letra="N" checked>
+                            <label class="btn btn-outline-primary btn-sm" for="av_n">Red</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="AV" name="m_AV" id="av_a" value="0.62" data-letra="A">
+                            <label class="btn btn-outline-primary btn-sm" for="av_a">Adyacente</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="AV" name="m_AV" id="av_l" value="0.55" data-letra="L">
+                            <label class="btn btn-outline-primary btn-sm" for="av_l">Local</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="AV" name="m_AV" id="av_p" value="0.2" data-letra="P">
+                            <label class="btn btn-outline-primary btn-sm" for="av_p">Físico</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold mb-1">Complejidad de Ataque (AC)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="AC" name="m_AC" id="ac_l" value="0.77" data-letra="L" checked>
+                            <label class="btn btn-outline-primary btn-sm" for="ac_l">Baja</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="AC" name="m_AC" id="ac_h" value="0.44" data-letra="H">
+                            <label class="btn btn-outline-primary btn-sm" for="ac_h">Alta</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold mb-1">Privilegios Requeridos (PR)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="PR" name="m_PR" id="pr_n" value="0.85" data-letra="N" checked>
+                            <label class="btn btn-outline-primary btn-sm" for="pr_n">Ninguno</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="PR" name="m_PR" id="pr_l" value="0.62" data-letra="L" data-changed="0.68">
+                            <label class="btn btn-outline-primary btn-sm" for="pr_l">Bajos</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="PR" name="m_PR" id="pr_h" value="0.27" data-letra="H" data-changed="0.5">
+                            <label class="btn btn-outline-primary btn-sm" for="pr_h">Altos</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold mb-1">Interacción del Usuario (UI)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="UI" name="m_UI" id="ui_n" value="0.85" data-letra="N" checked>
+                            <label class="btn btn-outline-primary btn-sm" for="ui_n">Ninguna</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="UI" name="m_UI" id="ui_r" value="0.62" data-letra="R">
+                            <label class="btn btn-outline-primary btn-sm" for="ui_r">Requerida</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold mb-1">Alcance (S)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="S" name="m_S" id="s_u" value="U" data-letra="U" checked>
+                            <label class="btn btn-outline-primary btn-sm" for="s_u">Sin cambios</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="S" name="m_S" id="s_c" value="C" data-letra="C">
+                            <label class="btn btn-outline-primary btn-sm" for="s_c">Cambiado</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold mb-1">Confidencialidad (C)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="C" name="m_C" id="c_n" value="0" data-letra="N" checked>
+                            <label class="btn btn-outline-danger btn-sm" for="c_n">Ninguno</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="C" name="m_C" id="c_l" value="0.22" data-letra="L">
+                            <label class="btn btn-outline-danger btn-sm" for="c_l">Bajo</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="C" name="m_C" id="c_h" value="0.56" data-letra="H">
+                            <label class="btn btn-outline-danger btn-sm" for="c_h">Alto</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold mb-1">Integridad (I)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="I" name="m_I" id="i_n" value="0" data-letra="N" checked>
+                            <label class="btn btn-outline-danger btn-sm" for="i_n">Ninguno</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="I" name="m_I" id="i_l" value="0.22" data-letra="L">
+                            <label class="btn btn-outline-danger btn-sm" for="i_l">Bajo</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="I" name="m_I" id="i_h" value="0.56" data-letra="H">
+                            <label class="btn btn-outline-danger btn-sm" for="i_h">Alto</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold mb-1">Disponibilidad (A)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="A" name="m_A" id="a_n" value="0" data-letra="N" checked>
+                            <label class="btn btn-outline-danger btn-sm" for="a_n">Ninguno</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="A" name="m_A" id="a_l" value="0.22" data-letra="L">
+                            <label class="btn btn-outline-danger btn-sm" for="a_l">Bajo</label>
+                            <input type="radio" class="btn-check cvss-metric" data-metrica="A" name="m_A" id="a_h" value="0.56" data-letra="H">
+                            <label class="btn btn-outline-danger btn-sm" for="a_h">Alto</label>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <div class="text-muted small">Vector CVSS calculado</div>
+                        <code id="cvss-vector-preview">CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N</code>
+                    </div>
+                    <div class="text-end">
+                        <span class="fs-2 fw-bold" id="cvss-score-preview">0.0</span>
+                        <span class="badge fs-6 ms-2" id="cvss-severidad-preview">Ninguna</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">CVSS Score (calculado)</label>
+                {{ form.cvss_score }}
+            </div>
+            <div class="col-md-5">
+                <label class="form-label">Vector CVSS (calculado)</label>
+                {{ form.cvss_vector }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Severidad (según CVSS)</label>
+                {{ form.severidad }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">Evidencia <small class="text-muted">(obligatoria si el estado no es "Identificada")</small></label>
+                {{ form.evidencia }}
+            </div>
             <div class="col-12"><label class="form-label">Observaciones</label>{{ form.observaciones }}</div>
         </div>
         <hr class="my-3">
@@ -30,4 +157,83 @@
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+// Calculadora CVSS v3.1 — implementa la formula oficial de la especificacion.
+function calcularCVSS() {
+    const metricas = {};
+    document.querySelectorAll('.cvss-metric:checked').forEach(el => {
+        metricas[el.dataset.metrica] = el;
+    });
+    if (Object.keys(metricas).length < 8) return;
+
+    const scopeChanged = metricas.S.value === 'C';
+    const AV = parseFloat(metricas.AV.value);
+    const AC = parseFloat(metricas.AC.value);
+    const UI = parseFloat(metricas.UI.value);
+    let PR = parseFloat(metricas.PR.value);
+    if (scopeChanged && metricas.PR.dataset.changed) {
+        PR = parseFloat(metricas.PR.dataset.changed);
+    }
+    const Cimp = parseFloat(metricas.C.value);
+    const Iimp = parseFloat(metricas.I.value);
+    const Aimp = parseFloat(metricas.A.value);
+
+    const iscBase = 1 - ((1 - Cimp) * (1 - Iimp) * (1 - Aimp));
+    let isc;
+    if (scopeChanged) {
+        isc = 7.52 * (iscBase - 0.029) - 3.25 * Math.pow(iscBase - 0.02, 15);
+    } else {
+        isc = 6.42 * iscBase;
+    }
+
+    const exploitability = 8.22 * AV * AC * PR * UI;
+
+    function roundup(x) {
+        const intInput = Math.round(x * 100000);
+        if (intInput % 10000 === 0) {
+            return intInput / 100000;
+        }
+        return (Math.floor(intInput / 10000) + 1) / 10;
+    }
+
+    let score;
+    if (isc <= 0) {
+        score = 0.0;
+    } else if (scopeChanged) {
+        score = roundup(Math.min(1.08 * (isc + exploitability), 10));
+    } else {
+        score = roundup(Math.min(isc + exploitability, 10));
+    }
+    score = Math.round(score * 10) / 10;
+
+    const vector = `CVSS:3.1/AV:${metricas.AV.dataset.letra}/AC:${metricas.AC.dataset.letra}/PR:${metricas.PR.dataset.letra}/UI:${metricas.UI.dataset.letra}/S:${metricas.S.dataset.letra}/C:${metricas.C.dataset.letra}/I:${metricas.I.dataset.letra}/A:${metricas.A.dataset.letra}`;
+
+    let severidad, color;
+    if (score === 0) { severidad = 'Ninguna'; color = 'secondary'; }
+    else if (score < 4.0) { severidad = 'Baja'; color = 'success'; }
+    else if (score < 7.0) { severidad = 'Media'; color = 'warning text-dark'; }
+    else if (score < 9.0) { severidad = 'Alta'; color = 'orange'; }
+    else { severidad = 'Crítica'; color = 'danger'; }
+
+    document.getElementById('cvss-vector-preview').textContent = vector;
+    document.getElementById('cvss-score-preview').textContent = score.toFixed(1);
+    const badgeSev = document.getElementById('cvss-severidad-preview');
+    badgeSev.textContent = severidad;
+    badgeSev.className = 'badge fs-6 ms-2 bg-' + color;
+
+    document.getElementById('id_cvss_score').value = score.toFixed(1);
+    document.getElementById('id_cvss_vector').value = vector;
+    if (score > 0) {
+        document.getElementById('id_severidad').value = severidad;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.cvss-metric').forEach(el => el.addEventListener('change', calcularCVSS));
+    calcularCVSS();
+});
+</script>
 {% endblock %}

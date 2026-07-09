@@ -25,7 +25,16 @@
             </div>
             <div class="col-sm-3">
                 <label class="form-label mb-1">Departamento</label>
-                <input type="text" name="departamento" class="form-control form-control-sm" value="{{ filtros.departamento }}" placeholder="Buscar...">
+                <select name="departamento" class="form-select form-select-sm">
+                    <option value="">Todos</option>
+                    <option value="Tecnología" {% if filtros.departamento == 'Tecnología' %}selected{% endif %}>Tecnología</option>
+                    <option value="Finanzas" {% if filtros.departamento == 'Finanzas' %}selected{% endif %}>Finanzas</option>
+                    <option value="Recursos Humanos" {% if filtros.departamento == 'Recursos Humanos' %}selected{% endif %}>Recursos Humanos</option>
+                    <option value="Administración" {% if filtros.departamento == 'Administración' %}selected{% endif %}>Administración</option>
+                    <option value="Operaciones" {% if filtros.departamento == 'Operaciones' %}selected{% endif %}>Operaciones</option>
+                    <option value="Legal y Cumplimiento" {% if filtros.departamento == 'Legal y Cumplimiento' %}selected{% endif %}>Legal y Cumplimiento</option>
+                    <option value="Ventas y Marketing" {% if filtros.departamento == 'Ventas y Marketing' %}selected{% endif %}>Ventas y Marketing</option>
+                </select>
             </div>
             <div class="col-sm-2">
                 <label class="form-label mb-1">Criticidad</label>

@@ -20,6 +20,8 @@ class Vulnerabilidad(models.Model):
     descripcion = models.TextField('Descripción', blank=True)
     id_activo = models.ForeignKey(Activo, on_delete=models.CASCADE, verbose_name='Activo', related_name='vulnerabilidades')
     cvss_score = models.FloatField('CVSS Score', null=True, blank=True, help_text='0.0 – 10.0')
+    cvss_vector = models.CharField('Vector CVSS', max_length=60, blank=True,
+        help_text='Cadena de vector CVSS v3.1 generada por la calculadora')
     severidad = models.CharField('Severidad', max_length=10, choices=SEVERIDAD_CHOICES)
     evidencia = models.TextField('Evidencia', blank=True)
     estado = models.CharField('Estado', max_length=20, choices=ESTADO_CHOICES, default='Identificada')

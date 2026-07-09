@@ -23,8 +23,14 @@
                 {{ form.control_iso }}
                 <div class="form-text">Seleccione el control ISO/IEC 27002:2022 relacionado.</div>
             </div>
-            <div class="col-12"><label class="form-label">Nombre del control *</label>{{ form.nombre_control }}</div>
-            <div class="col-12"><label class="form-label">Descripción del control *</label>{{ form.descripcion_ctrl }}</div>
+            <div class="col-12">
+                <label class="form-label">Nombre del control *</label>{{ form.nombre_control }}
+                {% if form.nombre_control.errors %}<div class="text-danger small">{{ form.nombre_control.errors }}</div>{% endif %}
+            </div>
+            <div class="col-12">
+                <label class="form-label">Descripción del control *</label>{{ form.descripcion_ctrl }}
+                {% if form.descripcion_ctrl.errors %}<div class="text-danger small">{{ form.descripcion_ctrl.errors }}</div>{% endif %}
+            </div>
             <div class="col-md-6"><label class="form-label">Responsable *</label>{{ form.responsable }}</div>
             <div class="col-md-3"><label class="form-label">Estado</label>{{ form.estado_control }}</div>
             <div class="col-12"><hr class="my-1"><small class="text-uppercase text-muted fw-semibold">Ciclo de vida del tratamiento</small></div>

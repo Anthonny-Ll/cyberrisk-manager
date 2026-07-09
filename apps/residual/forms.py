@@ -17,8 +17,17 @@ class RiesgoResidualForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         riesgo = cleaned.get('id_riesgo')
+        tratamiento = cleaned.get('id_tratamiento')
         prob_res = cleaned.get('prob_residual')
         imp_res = cleaned.get('impacto_residual')
+
+        # El tratamiento seleccionado debe pertenecer al riesgo seleccionado
+        if riesgo and tratamiento and tratamiento.id_riesgo_id != riesgo.id:
+            raise forms.ValidationError(
+                f'El tratamiento "{tratamiento.nombre_control}" pertenece al riesgo '
+                f'R-{tratamiento.id_riesgo.pk:03d}, no al riesgo seleccionado R-{riesgo.pk:03d}.'
+            )
+
         if riesgo and prob_res and imp_res:
             residual = prob_res * imp_res
             # RN-03: Riesgo residual no puede ser mayor al inherente
@@ -31,7 +40,7 @@ class RiesgoResidualForm(forms.ModelForm):
 
 
 class AceptacionResidualForm(forms.ModelForm):
-    """Formulario exclusivo para auditor: registrar decisión de aceptación."""
+    """Formulario para registrar la decisión de aceptación del riesgo residual."""
     class Meta:
         model = RiesgoResidual
         fields = ['aceptacion', 'resp_aprobacion', 'observaciones']
@@ -40,3 +49,11 @@ class AceptacionResidualForm(forms.ModelForm):
             'resp_aprobacion': forms.TextInput(attrs={'class': 'form-control'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('aceptacion') in ('Aceptado', 'Rechazado') and not (cleaned.get('resp_aprobacion') or '').strip():
+            raise forms.ValidationError(
+                'Debe indicar el responsable que aprueba o rechaza la decisión.'
+            )
+        return cleaned

@@ -109,6 +109,17 @@ body {
 .kpi-value { font-size: 2rem; font-weight: 700; color: #1a237e; line-height: 1.1; }
 .kpi-label { color: #6c757d; font-size: 0.82rem; font-weight: 500; }
 
+.kpi-clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kpi-clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(26,35,126,0.15);
+}
+
+.row-clickable { cursor: pointer; }
+
 /* ── Page title ──────────────────────────────────────────── */
 .page-title {
     font-size: 1.4rem;

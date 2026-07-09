@@ -1,4 +1,4 @@
-"""Vistas CRUD para activos de información."""
+﻿"""Vistas CRUD para activos de información."""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -38,7 +38,6 @@ def detalle_activo(request, pk):
 
 
 @login_required
-@login_required
 def crear_activo(request):
     if request.method == 'POST':
         form = ActivoForm(request.POST)
@@ -52,7 +51,6 @@ def crear_activo(request):
     return render(request, 'activos/form.html', {'form': form, 'titulo': 'Nuevo Activo'})
 
 
-@login_required
 @login_required
 def editar_activo(request, pk):
     activo = get_object_or_404(Activo, pk=pk)
@@ -68,7 +66,6 @@ def editar_activo(request, pk):
     return render(request, 'activos/form.html', {'form': form, 'titulo': 'Editar Activo', 'objeto': activo})
 
 
-@login_required
 @login_required
 def desactivar_activo(request, pk):
     """RN-08: Desactivación lógica, no eliminación física."""

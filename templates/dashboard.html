@@ -15,63 +15,71 @@
 <!-- KPI Cards -->
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-primary border-4">
+        <a href="/activos/" class="kpi-card kpi-clickable text-decoration-none border-start border-primary border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver el listado completo de activos registrados">
             <div class="kpi-icon text-primary"><i class="bi bi-server"></i></div>
             <div class="kpi-value">{{ activos_total }}</div>
             <div class="kpi-label">Activos registrados</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-secondary border-4">
+        <a href="/riesgos/" class="kpi-card kpi-clickable text-decoration-none border-start border-secondary border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver todas las evaluaciones de riesgo registradas">
             <div class="kpi-icon text-secondary"><i class="bi bi-graph-up-arrow"></i></div>
             <div class="kpi-value">{{ riesgos_total }}</div>
             <div class="kpi-label">Riesgos evaluados</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-warning border-4">
+        <a href="/riesgos/?sin_tratamiento=1" class="kpi-card kpi-clickable text-decoration-none border-start border-warning border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver riesgos que aún no tienen ningún control asignado">
             <div class="kpi-icon text-warning"><i class="bi bi-shield-exclamation"></i></div>
             <div class="kpi-value">{{ riesgos_sin_tratamiento }}</div>
             <div class="kpi-label">Sin tratamiento</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-danger border-4">
+        <a href="/riesgos/?nivel=Crítico" class="kpi-card kpi-clickable text-decoration-none border-start border-danger border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver los riesgos clasificados como críticos">
             <div class="kpi-icon text-danger"><i class="bi bi-exclamation-octagon"></i></div>
             <div class="kpi-value">{{ riesgos_critico }}</div>
             <div class="kpi-label">Riesgos críticos</div>
-        </div>
+        </a>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-success border-4">
+        <a href="/riesgos/?nivel=Bajo" class="kpi-card kpi-clickable text-decoration-none border-start border-success border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver los riesgos clasificados como bajos">
             <div class="kpi-icon text-success"><i class="bi bi-check-circle"></i></div>
             <div class="kpi-value text-success">{{ riesgos_bajo }}</div>
             <div class="kpi-label">Riesgos bajos</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-warning border-4">
+        <a href="/riesgos/?nivel=Medio" class="kpi-card kpi-clickable text-decoration-none border-start border-warning border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver los riesgos clasificados como medios">
             <div class="kpi-icon" style="color:#ffc107"><i class="bi bi-dash-circle"></i></div>
             <div class="kpi-value" style="color:#e6ac00">{{ riesgos_medio }}</div>
             <div class="kpi-label">Riesgos medios</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-4" style="border-color:#fd7e14!important">
+        <a href="/riesgos/?nivel=Alto" class="kpi-card kpi-clickable text-decoration-none border-start border-4" style="border-color:#fd7e14!important"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver los riesgos clasificados como altos">
             <div class="kpi-icon" style="color:#fd7e14"><i class="bi bi-exclamation-circle"></i></div>
             <div class="kpi-value" style="color:#fd7e14">{{ riesgos_alto }}</div>
             <div class="kpi-label">Riesgos altos</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-6 col-lg-3">
-        <div class="kpi-card border-start border-4" style="border-color:#6c757d!important">
+        <a href="/monitoreo/" class="kpi-card kpi-clickable text-decoration-none border-start border-4" style="border-color:#6c757d!important"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ir al panel de monitoreo a revisar los controles vencidos">
             <div class="kpi-icon text-muted"><i class="bi bi-clock-history"></i></div>
             <div class="kpi-value text-muted">{{ controles_vencidos }}</div>
             <div class="kpi-label">Controles vencidos</div>
-        </div>
+        </a>
     </div>
 </div>
 
@@ -148,7 +156,8 @@
                         </thead>
                         <tbody>
                             {% for r in ultimos_riesgos %}
-                            <tr>
+                            <tr class="row-clickable" onclick="location.href='/riesgos/{{ r.pk }}/'"
+                                data-bs-toggle="tooltip" data-bs-placement="left" title="Ver detalle de R-{{ r.pk|stringformat:'03d' }}">
                                 <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
                                 <td>{{ r.id_activo.nombre|truncatechars:30 }}</td>
                                 <td class="fw-bold">{{ r.riesgo_inherente }}</td>
@@ -174,10 +183,11 @@
 <script>
 // Gráfico de barras con datos desde contexto Django
 const ctx = document.getElementById('graficoRiesgos').getContext('2d');
+const nivelesGrafico = {{ datos_grafico.labels|safe }};
 new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: {{ datos_grafico.labels|safe }},
+        labels: nivelesGrafico,
         datasets: [{
             label: 'Cantidad de Riesgos',
             data: {{ datos_grafico.datos|safe }},
@@ -188,9 +198,18 @@ new Chart(ctx, {
     },
     options: {
         responsive: true,
+        onClick: (evt, elementos) => {
+            if (elementos.length > 0) {
+                const nivel = nivelesGrafico[elementos[0].index];
+                window.location.href = '/riesgos/?nivel=' + encodeURIComponent(nivel);
+            }
+        },
+        onHover: (evt, elementos) => {
+            evt.native.target.style.cursor = elementos.length ? 'pointer' : 'default';
+        },
         plugins: {
             legend: { display: false },
-            tooltip: { callbacks: { label: ctx => ` ${ctx.raw} riesgos` } }
+            tooltip: { callbacks: { label: ctx => ` ${ctx.raw} riesgos — clic para ver el detalle` } }
         },
         scales: {
             y: {

@@ -23,7 +23,6 @@ def lista_tratamientos(request):
 
 
 @login_required
-@login_required
 def crear_tratamiento(request):
     if request.method == 'POST':
         form = TratamientoForm(request.POST)
@@ -45,7 +44,6 @@ def crear_tratamiento(request):
     return render(request, 'tratamiento/form.html', {'form': form, 'titulo': 'Nuevo Tratamiento'})
 
 
-@login_required
 @login_required
 def editar_tratamiento(request, pk):
     trat = get_object_or_404(Tratamiento, pk=pk)

@@ -15,6 +15,15 @@ class Activo(models.Model):
     ]
     ESTADO_CHOICES = [('Activo', 'Activo'), ('Inactivo', 'Inactivo')]
     VALOR_CHOICES = [(1, '1 - Bajo'), (2, '2 - Medio'), (3, '3 - Alto'), (4, '4 - Crítico')]
+    DEPARTAMENTO_CHOICES = [
+        ('Tecnología', 'Tecnología'),
+        ('Finanzas', 'Finanzas'),
+        ('Recursos Humanos', 'Recursos Humanos'),
+        ('Administración', 'Administración'),
+        ('Operaciones', 'Operaciones'),
+        ('Legal y Cumplimiento', 'Legal y Cumplimiento'),
+        ('Ventas y Marketing', 'Ventas y Marketing'),
+    ]
 
     nombre = models.CharField('Nombre', max_length=200)
     tipo = models.CharField('Tipo', max_length=20, choices=TIPO_CHOICES)
@@ -25,7 +34,7 @@ class Activo(models.Model):
         verbose_name='Propietario',
         related_name='activos_propietario'
     )
-    departamento = models.CharField('Departamento', max_length=100)
+    departamento = models.CharField('Departamento', max_length=100, choices=DEPARTAMENTO_CHOICES)
     confidencialidad = models.IntegerField('Confidencialidad (C)', choices=VALOR_CHOICES)
     integridad = models.IntegerField('Integridad (I)', choices=VALOR_CHOICES)
     disponibilidad = models.IntegerField('Disponibilidad (D)', choices=VALOR_CHOICES)

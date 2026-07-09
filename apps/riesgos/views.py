@@ -1,4 +1,4 @@
-"""Vistas de evaluación de riesgos y matriz de riesgos."""
+﻿"""Vistas de evaluación de riesgos y matriz de riesgos."""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -15,6 +15,7 @@ def lista_riesgos(request):
     departamento = request.GET.get('departamento', '')
     probabilidad = request.GET.get('probabilidad', '')
     impacto = request.GET.get('impacto', '')
+    sin_tratamiento = request.GET.get('sin_tratamiento', '')
 
     if nivel:
         riesgos = riesgos.filter(nivel_cualitativo=nivel)
@@ -26,15 +27,16 @@ def lista_riesgos(request):
         riesgos = riesgos.filter(probabilidad=probabilidad)
     if impacto:
         riesgos = riesgos.filter(impacto=impacto)
+    if sin_tratamiento:
+        riesgos = riesgos.filter(tratamiento__isnull=True)
 
     return render(request, 'riesgos/lista.html', {
         'riesgos': riesgos,
         'filtros': {'nivel': nivel, 'activo': activo, 'departamento': departamento,
-                    'probabilidad': probabilidad, 'impacto': impacto},
+                    'probabilidad': probabilidad, 'impacto': impacto, 'sin_tratamiento': sin_tratamiento},
     })
 
 
-@login_required
 @login_required
 def crear_riesgo(request):
     if request.method == 'POST':
@@ -52,7 +54,6 @@ def crear_riesgo(request):
     return render(request, 'riesgos/form.html', {'form': form, 'titulo': 'Nueva Evaluación de Riesgo'})
 
 
-@login_required
 @login_required
 def editar_riesgo(request, pk):
     riesgo = get_object_or_404(Riesgo, pk=pk)
@@ -119,7 +120,6 @@ def matriz_riesgos(request):
     return render(request, 'riesgos/matriz.html', {'matriz': matriz, 'rango': range(1, 5)})
 
 
-@login_required
 @login_required
 def cerrar_riesgo(request, pk):
     riesgo = get_object_or_404(Riesgo, pk=pk)
