@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}{{ titulo }} — CyberSave{% endblock %}
 {% block contenido %}
 <div class="d-flex align-items-center mb-3">
@@ -13,6 +13,17 @@
             <div class="col-12"><label class="form-label">Nombre *</label>{{ form.nombre }}</div>
             <div class="col-12"><label class="form-label">Descripción</label>{{ form.descripcion }}</div>
             <div class="col-md-6"><label class="form-label">Activo afectado *</label>{{ form.id_activo }}</div>
+            <div class="col-md-6"><label class="form-label">Amenaza asociada <small class="text-muted">(opcional)</small></label>{{ form.amenaza_asociada }}</div>
+            <div class="col-md-3">
+                <label class="form-label">CVE ID <small class="text-muted">(opcional)</small></label>
+                <div class="input-group">
+                    {{ form.cve_id }}
+                    <button class="btn btn-outline-primary" type="button" id="btn-buscar-cve" title="Buscar en NIST NVD">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                <div class="form-text" id="cve-help">Ej: CVE-2024-1234</div>
+            </div>
             <div class="col-md-3">
                 <label class="form-label">CVSS Score <small class="text-muted">(opcional)</small></label>
                 {{ form.cvss_score }}
@@ -30,4 +41,44 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnBuscar = document.getElementById('btn-buscar-cve');
+    const inputCve = document.getElementById('id_cve_id'); // Django auto-generates id_<fieldname>
+    const inputDesc = document.getElementById('id_descripcion');
+    const inputCvss = document.getElementById('id_cvss_score');
+    const helpText = document.getElementById('cve-help');
+
+    if(btnBuscar) {
+        btnBuscar.addEventListener('click', function() {
+            const cveId = inputCve.value.trim();
+            if(!cveId) return;
+
+            btnBuscar.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            btnBuscar.disabled = true;
+            helpText.innerHTML = '<span class="text-info">Buscando en NIST...</span>';
+
+            fetch(`/vulnerabilidades/api/buscar-cve/?cve_id=${cveId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.error) {
+                        helpText.innerHTML = `<span class="text-danger">${data.error}</span>`;
+                    } else {
+                        helpText.innerHTML = `<span class="text-success">¡Datos encontrados!</span>`;
+                        if(data.descripcion && !inputDesc.value) inputDesc.value = data.descripcion;
+                        if(data.cvss_score) inputCvss.value = data.cvss_score;
+                    }
+                })
+                .catch(err => {
+                    helpText.innerHTML = `<span class="text-danger">Error de conexión</span>`;
+                })
+                .finally(() => {
+                    btnBuscar.innerHTML = '<i class="bi bi-search"></i>';
+                    btnBuscar.disabled = false;
+                });
+        });
+    }
+});
+</script>
 {% endblock %}

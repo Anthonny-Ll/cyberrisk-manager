@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}{{ titulo }} — CyberSave{% endblock %}
 {% block contenido %}
 <div class="d-flex align-items-center mb-3">
@@ -11,6 +11,36 @@
         {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
         <div class="row g-3">
             <div class="col-12"><label class="form-label">Riesgo asociado *</label>{{ form.id_riesgo }}</div>
+            
+            <!-- 🎯 Simulador What-If -->
+            <div class="col-12" id="panel-simulador" style="display: none;">
+                <div class="card bg-light border-primary mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary fw-bold"><i class="bi bi-sliders me-2"></i>Simulador de Impacto (What-If)</h6>
+                        <p class="small text-muted mb-3">Simula cómo este control reducirá el riesgo residual.</p>
+                        
+                        <div class="row align-items-center mb-3">
+                            <div class="col-md-5">
+                                <label class="form-label small">Probabilidad Simulada: <span id="sim-p-val" class="badge bg-primary"></span></label>
+                                <input type="range" class="form-range" id="sim-p" min="1" max="4" step="1">
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small">Impacto Simulado: <span id="sim-i-val" class="badge bg-primary"></span></label>
+                                <input type="range" class="form-range" id="sim-i" min="1" max="4" step="1">
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="h3 mb-0" id="sim-res-val">-</div>
+                                <div class="small fw-bold" id="sim-res-nivel">Nivel</div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress" style="height: 20px;">
+                            <div id="sim-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div class="text-center mt-2 small fw-bold" id="sim-msg"></div>
+                    </div>
+                </div>
+            </div>
             <div class="col-md-4">
                 <label class="form-label">Estrategia *</label>
                 {{ form.estrategia }}
@@ -45,4 +75,79 @@
         </div>
     </form>
 </div>
+{{ riesgos_json|json_script:"riesgos-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const riesgoSelect = document.querySelector('select[name="id_riesgo"]');
+    const panel = document.getElementById('panel-simulador');
+    const simP = document.getElementById('sim-p');
+    const simI = document.getElementById('sim-i');
+    
+    // Si no hay riesgos json o panel, salir
+    if(!document.getElementById('riesgos-data') || !riesgoSelect) return;
+    const riesgosDatos = JSON.parse(document.getElementById('riesgos-data').textContent);
+    
+    let probActual = 0;
+    let impActual = 0;
+    
+    function initSimulador() {
+        const rId = riesgoSelect.value;
+        if(rId && riesgosDatos[rId]) {
+            probActual = riesgosDatos[rId].p;
+            impActual = riesgosDatos[rId].i;
+            simP.value = probActual;
+            simI.value = impActual;
+            panel.style.display = 'block';
+            actualizarSim();
+        } else {
+            panel.style.display = 'none';
+        }
+    }
+    
+    function actualizarSim() {
+        const p = parseInt(simP.value);
+        const i = parseInt(simI.value);
+        const inherente = probActual * impActual;
+        const residual = p * i;
+        
+        document.getElementById('sim-p-val').textContent = p;
+        document.getElementById('sim-i-val').textContent = i;
+        
+        let reduccion = Math.round((1 - residual / inherente) * 100);
+        if (reduccion < 0) reduccion = 0;
+        
+        const resVal = document.getElementById('sim-res-val');
+        const resNivel = document.getElementById('sim-res-nivel');
+        const barra = document.getElementById('sim-progress');
+        const msg = document.getElementById('sim-msg');
+        
+        resVal.textContent = residual;
+        
+        let nivel, colorClass;
+        if (residual <= 4) { nivel = 'BAJO'; colorClass = 'bg-success'; }
+        else if (residual <= 8) { nivel = 'MEDIO'; colorClass = 'bg-warning'; }
+        else if (residual <= 12) { nivel = 'ALTO'; colorClass = 'bg-orange'; }
+        else { nivel = 'CRÍTICO'; colorClass = 'bg-danger'; }
+        
+        resNivel.textContent = nivel;
+        resVal.className = 'h3 mb-0 text-' + (colorClass.replace('bg-', ''));
+        
+        barra.style.width = reduccion + '%';
+        barra.className = 'progress-bar progress-bar-striped progress-bar-animated ' + colorClass;
+        
+        if (residual <= 4) {
+            msg.innerHTML = '<span class="text-success">✅ El riesgo residual sería ACEPTABLE</span>';
+        } else {
+            msg.innerHTML = '<span class="text-danger">⚠️ El riesgo residual aún requiere atención</span>';
+        }
+    }
+    
+    riesgoSelect.addEventListener('change', initSimulador);
+    simP.addEventListener('input', actualizarSim);
+    simI.addEventListener('input', actualizarSim);
+    
+    // Iniciar si ya hay algo seleccionado (ej: edición)
+    initSimulador();
+});
+</script>
 {% endblock %}

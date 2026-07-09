@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}Vulnerabilidades — CyberSave{% endblock %}
 {% block contenido %}
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -60,6 +60,10 @@
                                 <button type="submit" class="btn btn-outline-success" data-confirm="¿Marcar '{{ v.nombre }}' como resuelta?"><i class="bi bi-check-lg"></i></button>
                             </form>
                             {% endif %}
+                            <form method="post" action="/vulnerabilidades/{{ v.pk }}/eliminar/" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger" data-confirm="¿Está seguro de eliminar permanentemente '{{ v.nombre }}'?"><i class="bi bi-trash"></i></button>
+                            </form>
                         </div>
                     </td>
                 </tr>

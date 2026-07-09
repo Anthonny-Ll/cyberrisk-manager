@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}Dashboard — CyberSave{% endblock %}
 
 {% block contenido %}
@@ -115,14 +115,22 @@
 
 <!-- Gráfico + Últimos riesgos -->
 <div class="row g-3">
-    <!-- Gráfico de barras -->
+    <!-- Gráficos -->
     <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm h-100 mb-3">
             <div class="card-header bg-white fw-semibold">
-                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Distribución de Riesgos por Nivel
+                <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Distribución por Nivel
             </div>
             <div class="card-body">
                 <canvas id="graficoRiesgos" height="220"></canvas>
+            </div>
+        </div>
+        <div class="card shadow-sm h-100 mt-3">
+            <div class="card-header bg-white fw-semibold">
+                <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Composición de Riesgos
+            </div>
+            <div class="card-body" style="position: relative; height: 250px; width: 100%;">
+                <canvas id="graficoDona"></canvas>
             </div>
         </div>
     </div>
@@ -200,6 +208,29 @@ new Chart(ctx, {
             },
             x: { grid: { display: false } }
         }
+    }
+});
+
+// Gráfico de Dona
+const ctxDona = document.getElementById('graficoDona').getContext('2d');
+new Chart(ctxDona, {
+    type: 'doughnut',
+    data: {
+        labels: {{ datos_grafico.labels|safe }},
+        datasets: [{
+            data: {{ datos_grafico.datos|safe }},
+            backgroundColor: {{ datos_grafico.colores|safe }},
+            borderWidth: 2,
+            hoverOffset: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right' }
+        },
+        cutout: '65%'
     }
 });
 </script>

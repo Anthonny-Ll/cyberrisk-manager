@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.auditoria.utils import registrar_log
+import requests
+from django.http import JsonResponse
 from .models import Vulnerabilidad
 from .forms import VulnerabilidadForm
 
@@ -62,3 +64,50 @@ def desactivar_vulnerabilidad(request, pk):
         registrar_log(request.user, 'desactivar', 'Vulnerabilidad', vuln.pk, f'Vulnerabilidad resuelta: {vuln.nombre}')
         messages.warning(request, f'Vulnerabilidad "{vuln.nombre}" marcada como resuelta.')
     return redirect('/vulnerabilidades/')
+
+@login_required
+def eliminar_vulnerabilidad(request, pk):
+    vuln = get_object_or_404(Vulnerabilidad, pk=pk)
+    if request.method == 'POST':
+        nombre = vuln.nombre
+        vuln.delete()
+        registrar_log(request.user, 'eliminar', 'Vulnerabilidad', pk, f'Vulnerabilidad eliminada: {nombre}')
+        messages.error(request, f'Vulnerabilidad "{nombre}" eliminada de la base de datos.')
+    return redirect('/vulnerabilidades/')
+
+@login_required
+def api_buscar_cve(request):
+    """Consulta la API pública del NIST NVD para un CVE específico."""
+    cve_id = request.GET.get('cve_id', '').strip().upper()
+    if not cve_id.startswith('CVE-'):
+        return JsonResponse({'error': 'Formato inválido. Use CVE-YYYY-NNNNN'}, status=400)
+    
+    url = f'https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve_id}'
+    try:
+        resp = requests.get(url, timeout=10)
+        if resp.status_code != 200:
+            return JsonResponse({'error': 'No se pudo conectar con NIST NVD'}, status=502)
+        
+        data = resp.json()
+        vulnerabilities = data.get('vulnerabilities', [])
+        if not vulnerabilities:
+            return JsonResponse({'error': f'{cve_id} no encontrado en NIST'}, status=404)
+        
+        cve = vulnerabilities[0]['cve']
+        
+        # Extraer CVSS score V3.1
+        cvss_data = cve.get('metrics', {}).get('cvssMetricV31', [{}])
+        cvss_score = cvss_data[0].get('cvssData', {}).get('baseScore', 0) if cvss_data else 0
+        
+        # Descripción
+        descriptions = cve.get('descriptions', [])
+        desc_es = next((d['value'] for d in descriptions if d['lang'] == 'es'), None)
+        desc_en = next((d['value'] for d in descriptions if d['lang'] == 'en'), '')
+        
+        return JsonResponse({
+            'cve_id': cve_id,
+            'descripcion': desc_es or desc_en,
+            'cvss_score': cvss_score,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

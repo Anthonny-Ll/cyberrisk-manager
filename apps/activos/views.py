@@ -47,9 +47,13 @@ def crear_activo(request):
             registrar_log(request.user, 'crear', 'Activo', activo.pk, f'Activo creado: {activo.nombre}')
             messages.success(request, f'Activo "{activo.nombre}" registrado correctamente.')
             return redirect('/activos/')
+        else:
+            messages.error(request, 'Error al guardar. Revisa los campos marcados en rojo.')
     else:
         form = ActivoForm()
-    return render(request, 'activos/form.html', {'form': form, 'titulo': 'Nuevo Activo'})
+        
+    departamentos = Activo.objects.exclude(departamento='').values_list('departamento', flat=True).distinct()
+    return render(request, 'activos/form.html', {'form': form, 'titulo': 'Nuevo Activo', 'departamentos': departamentos})
 
 
 @login_required
@@ -63,9 +67,13 @@ def editar_activo(request, pk):
             registrar_log(request.user, 'editar', 'Activo', activo.pk, f'Activo editado: {activo.nombre}')
             messages.success(request, 'Activo actualizado correctamente.')
             return redirect('/activos/')
+        else:
+            messages.error(request, 'Error al guardar. Revisa los campos marcados en rojo.')
     else:
         form = ActivoForm(instance=activo)
-    return render(request, 'activos/form.html', {'form': form, 'titulo': 'Editar Activo', 'objeto': activo})
+        
+    departamentos = Activo.objects.exclude(departamento='').values_list('departamento', flat=True).distinct()
+    return render(request, 'activos/form.html', {'form': form, 'titulo': 'Editar Activo', 'objeto': activo, 'departamentos': departamentos})
 
 
 @login_required
@@ -78,4 +86,15 @@ def desactivar_activo(request, pk):
         activo.save()
         registrar_log(request.user, 'desactivar', 'Activo', activo.pk, f'Activo desactivado: {activo.nombre}')
         messages.warning(request, f'Activo "{activo.nombre}" desactivado.')
+    return redirect('/activos/')
+
+@login_required
+def eliminar_activo(request, pk):
+    """Eliminación física del activo."""
+    activo = get_object_or_404(Activo, pk=pk)
+    if request.method == 'POST':
+        nombre = activo.nombre
+        activo.delete()
+        registrar_log(request.user, 'eliminar', 'Activo', pk, f'Activo eliminado: {nombre}')
+        messages.success(request, f'Activo "{nombre}" eliminado por completo.')
     return redirect('/activos/')
