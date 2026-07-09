@@ -3,9 +3,7 @@
 {% block contenido %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="page-title mb-0"><i class="bi bi-shield-check me-2"></i>Tratamiento de Riesgos</h2>
-    {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
     <a href="/tratamiento/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nuevo Tratamiento</a>
-    {% endif %}
 </div>
 <div class="card mb-3 shadow-sm">
     <div class="card-body py-2">
@@ -39,13 +37,17 @@
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
-                    <tr><th>ID</th><th>Control</th><th>Riesgo</th><th>Estrategia</th><th>Tipo</th><th>Responsable</th><th>Fecha objetivo</th><th>Estado</th><th>Acciones</th></tr>
+                    <tr><th>ID</th><th>Control</th><th>ISO 27002</th><th>Riesgo</th><th>Estrategia</th><th>Responsable</th><th>Fecha objetivo</th><th>Estado</th><th>Avance</th><th>Acciones</th></tr>
                 </thead>
                 <tbody>
                     {% for t in tratamientos %}
                     <tr {% if t.esta_vencido %}class="table-warning"{% endif %}>
                         <td><code>#{{ t.pk }}</code></td>
                         <td class="fw-semibold">{{ t.nombre_control|truncatechars:30 }}</td>
+                        <td>
+                            {% if t.control_iso %}<span class="badge bg-light text-dark border" title="{{ t.control_iso.nombre }}">{{ t.control_iso.codigo }}</span>
+                            {% else %}<span class="text-muted small">—</span>{% endif %}
+                        </td>
                         <td><code>R-{{ t.id_riesgo.pk|stringformat:"03d" }}</code> <small class="text-muted">{{ t.id_riesgo.nivel_cualitativo }}</small></td>
                         <td>
                             {% if t.estrategia == 'Mitigar' %}<span class="badge bg-primary">Mitigar</span>
@@ -53,7 +55,6 @@
                             {% elif t.estrategia == 'Evitar' %}<span class="badge bg-secondary">Evitar</span>
                             {% else %}<span class="badge bg-warning text-dark">Aceptar</span>{% endif %}
                         </td>
-                        <td>{{ t.tipo_control }}</td>
                         <td>{{ t.responsable|truncatechars:20 }}</td>
                         <td>
                             {{ t.fecha_objetivo|date:"d/m/Y" }}
@@ -64,14 +65,22 @@
                             {% elif t.estado_control == 'En progreso' %}<span class="badge bg-warning text-dark">En progreso</span>
                             {% else %}<span class="badge bg-secondary">Pendiente</span>{% endif %}
                         </td>
+                        <td style="min-width:110px">
+                            <div class="progress" style="height:8px" title="{{ t.pct_avance_temporal }}% del tiempo transcurrido">
+                                <div class="progress-bar bg-{{ t.get_semaforo }}" style="width:{{ t.pct_avance_temporal }}%"></div>
+                            </div>
+                            <small class="text-{{ t.get_semaforo }}">
+                                {% if t.estado_control == 'Implementado' %}Completado
+                                {% elif t.dias_restantes < 0 %}{{ t.dias_restantes|cut:"-" }} días de retraso
+                                {% else %}{{ t.dias_restantes }} días restantes{% endif %}
+                            </small>
+                        </td>
                         <td>
-                            {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
                             <a href="/tratamiento/{{ t.pk }}/editar/" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="9" class="text-center text-muted py-4">No hay tratamientos registrados.</td></tr>
+                    <tr><td colspan="10" class="text-center text-muted py-4">No hay tratamientos registrados.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

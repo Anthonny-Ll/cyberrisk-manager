@@ -8,9 +8,6 @@ class Usuario(AbstractUser):
 
     ROL_CHOICES = [
         ('administrador', 'Administrador'),
-        ('analista', 'Analista de Riesgos'),
-        ('responsable', 'Responsable de Activo'),
-        ('auditor', 'Auditor / Alta Dirección'),
     ]
 
     ESTADO_CHOICES = [
@@ -19,7 +16,7 @@ class Usuario(AbstractUser):
     ]
 
     nombre_completo = models.CharField('Nombre completo', max_length=200, blank=True)
-    rol = models.CharField('Rol', max_length=20, choices=ROL_CHOICES, default='analista')
+    rol = models.CharField('Rol', max_length=20, choices=ROL_CHOICES, default='administrador')
     estado = models.CharField('Estado', max_length=10, choices=ESTADO_CHOICES, default='Activo')
 
     class Meta:
@@ -32,9 +29,3 @@ class Usuario(AbstractUser):
 
     def es_administrador(self):
         return self.rol == 'administrador'
-
-    def es_analista(self):
-        return self.rol in ('administrador', 'analista')
-
-    def es_auditor(self):
-        return self.rol in ('administrador', 'auditor')

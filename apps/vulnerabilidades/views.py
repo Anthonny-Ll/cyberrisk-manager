@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from apps.usuarios.decorators import analista_o_admin
 from apps.auditoria.utils import registrar_log
 from .models import Vulnerabilidad
 from .forms import VulnerabilidadForm
@@ -23,7 +22,7 @@ def lista_vulnerabilidades(request):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def crear_vulnerabilidad(request):
     if request.method == 'POST':
         form = VulnerabilidadForm(request.POST)
@@ -38,7 +37,7 @@ def crear_vulnerabilidad(request):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def editar_vulnerabilidad(request, pk):
     vuln = get_object_or_404(Vulnerabilidad, pk=pk)
     if request.method == 'POST':
@@ -54,7 +53,7 @@ def editar_vulnerabilidad(request, pk):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def desactivar_vulnerabilidad(request, pk):
     vuln = get_object_or_404(Vulnerabilidad, pk=pk)
     if request.method == 'POST':

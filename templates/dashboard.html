@@ -96,6 +96,7 @@
             <i class="bi bi-clock-history me-2 fs-5 text-warning"></i>
             <div>
                 <strong>VENCIDO:</strong> Control "{{ ctrl.nombre_control }}" — fecha objetivo: {{ ctrl.fecha_objetivo }} ({{ ctrl.get_estado_control_display }})
+                <a href="/tratamiento/{{ ctrl.pk }}/editar/" class="ms-2 btn btn-sm btn-warning py-0">Actualizar control</a>
             </div>
         </div>
         {% endfor %}

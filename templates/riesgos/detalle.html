@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block titulo %}R-{{ riesgo.pk|stringformat:"03d" }} — CyberSave{% endblock %}
+{% block contenido %}
+<div class="d-flex align-items-center mb-3">
+    <a href="/riesgos/" class="btn btn-sm btn-outline-secondary me-3"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="page-title mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Riesgo R-{{ riesgo.pk|stringformat:"03d" }}</h2>
+    <span class="badge {{ riesgo.get_nivel_badge }} ms-3 fs-6">{{ riesgo.nivel_cualitativo }} ({{ riesgo.riesgo_inherente }})</span>
+</div>
+
+<!-- Cadena de análisis: Activo -> Amenaza -> Vulnerabilidad -->
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-start border-primary border-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-server me-2 text-primary"></i>Activo</div>
+            <div class="card-body">
+                <a href="/activos/{{ riesgo.id_activo.pk }}/" class="fw-semibold text-decoration-none">{{ riesgo.id_activo.nombre }}</a>
+                <div class="text-muted small mt-1">{{ riesgo.id_activo.tipo }} — {{ riesgo.id_activo.departamento }}</div>
+                <div class="mt-2">
+                    <span class="badge bg-light text-dark border">C {{ riesgo.id_activo.confidencialidad }}</span>
+                    <span class="badge bg-light text-dark border">I {{ riesgo.id_activo.integridad }}</span>
+                    <span class="badge bg-light text-dark border">D {{ riesgo.id_activo.disponibilidad }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-start border-warning border-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Amenaza</div>
+            <div class="card-body">
+                <div class="fw-semibold">{{ riesgo.id_amenaza.nombre }}</div>
+                <div class="text-muted small mt-1">{{ riesgo.id_amenaza.tipo_amenaza }} — Fuente {{ riesgo.id_amenaza.fuente_amenaza }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-start border-danger border-4">
+            <div class="card-header bg-white fw-semibold"><i class="bi bi-bug me-2 text-danger"></i>Vulnerabilidad</div>
+            <div class="card-body">
+                <div class="fw-semibold">{{ riesgo.id_vulnerabilidad.nombre }}</div>
+                <div class="text-muted small mt-1">CVSS {{ riesgo.id_vulnerabilidad.cvss_score|default:"—" }} — {{ riesgo.id_vulnerabilidad.severidad }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Evaluación -->
+<div class="row g-3 mb-3">
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Evaluación de Riesgo</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Probabilidad</dt><dd class="col-sm-8">{{ riesgo.get_probabilidad_display }}</dd>
+                    <dt class="col-sm-4">Impacto</dt><dd class="col-sm-8">{{ riesgo.get_impacto_display }}</dd>
+                    <dt class="col-sm-4">Riesgo inherente</dt><dd class="col-sm-8"><strong class="fs-5">{{ riesgo.riesgo_inherente }}</strong> — <span class="badge {{ riesgo.get_nivel_badge }}">{{ riesgo.nivel_cualitativo }}</span></dd>
+                    <dt class="col-sm-4">Estado</dt><dd class="col-sm-8">{{ riesgo.get_estado_riesgo_display }}</dd>
+                    <dt class="col-sm-4">Registrado por</dt><dd class="col-sm-8">{{ riesgo.id_usuario_registra|default:"—" }}</dd>
+                    <dt class="col-sm-4">Fecha de evaluación</dt><dd class="col-sm-8">{{ riesgo.fecha_evaluacion|date:"d/m/Y H:i" }}</dd>
+                    <dt class="col-sm-4">Controles existentes</dt><dd class="col-sm-8">{{ riesgo.controles_existentes|default:"Ninguno registrado" }}</dd>
+                    <dt class="col-sm-4">Observaciones</dt><dd class="col-sm-8">{{ riesgo.observaciones|default:"—" }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Riesgo Residual</div>
+            <div class="card-body">
+                {% if residual %}
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Riesgo residual</dt><dd class="col-sm-7"><strong>{{ residual.riesgo_residual }}</strong> — <span class="badge {{ residual.get_nivel_badge }}">{{ residual.nivel_cualitativo }}</span></dd>
+                    <dt class="col-sm-5">Decisión</dt><dd class="col-sm-7">{{ residual.get_aceptacion_display }}</dd>
+                    <dt class="col-sm-5">Responsable</dt><dd class="col-sm-7">{{ residual.resp_aprobacion|default:"—" }}</dd>
+                </dl>
+                {% else %}
+                <p class="text-muted mb-0">Este riesgo aún no tiene una evaluación de riesgo residual registrada.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tratamientos -->
+<div class="card shadow-sm mb-3">
+    <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-shield-check me-2 text-success"></i>Tratamientos aplicados</span>
+        <a href="/tratamiento/nuevo/" class="btn btn-sm btn-outline-success py-0">Agregar control</a>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+            <thead><tr><th>Control</th><th>ISO 27002</th><th>Estrategia</th><th>Responsable</th><th>Fecha objetivo</th><th>Estado</th></tr></thead>
+            <tbody>
+                {% for t in tratamientos %}
+                <tr>
+                    <td>{{ t.nombre_control }}</td>
+                    <td>{% if t.control_iso %}<span class="badge bg-light text-dark border">{{ t.control_iso.codigo }}</span>{% else %}—{% endif %}</td>
+                    <td>{{ t.estrategia }}</td>
+                    <td>{{ t.responsable }}</td>
+                    <td>{{ t.fecha_objetivo|date:"d/m/Y" }}</td>
+                    <td>{{ t.get_estado_control_display }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-3">Sin tratamientos registrados para este riesgo.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex gap-2">
+    <a href="/riesgos/{{ riesgo.pk }}/editar/" class="btn btn-primary"><i class="bi bi-pencil me-1"></i>Editar</a>
+    <a href="/riesgos/" class="btn btn-outline-secondary">Volver a la lista</a>
+</div>
+{% endblock %}

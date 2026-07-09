@@ -110,7 +110,6 @@
                 </a>
             </li>
 
-            {% if request.user.rol == 'administrador' or request.user.is_superuser %}
             <li class="sidebar-section mt-3 mb-1 px-2">
                 <small class="text-uppercase text-muted">Administración</small>
             </li>
@@ -124,7 +123,6 @@
                     <i class="bi bi-journal-text"></i> Auditoría
                 </a>
             </li>
-            {% endif %}
         </ul>
 
         <div class="sidebar-footer p-3">

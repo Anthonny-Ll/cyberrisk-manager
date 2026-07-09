@@ -45,6 +45,8 @@ class Riesgo(models.Model):
     riesgo_inherente = models.IntegerField('Riesgo inherente', editable=False, default=0)
     nivel_cualitativo = models.CharField('Nivel cualitativo', max_length=10, editable=False)
     estado_riesgo = models.CharField('Estado', max_length=20, choices=ESTADO_CHOICES, default='Evaluado')
+    controles_existentes = models.TextField('Controles existentes', blank=True,
+        help_text='Controles de seguridad ya implementados antes de esta evaluación')
     observaciones = models.TextField('Observaciones', blank=True)
     id_usuario_registra = models.ForeignKey(
         settings.AUTH_USER_MODEL,

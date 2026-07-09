@@ -6,7 +6,8 @@ class TratamientoForm(forms.ModelForm):
     class Meta:
         model = Tratamiento
         fields = ['id_riesgo', 'estrategia', 'nombre_control', 'descripcion_ctrl',
-                  'tipo_control', 'funcion_control', 'responsable', 'fecha_objetivo',
+                  'tipo_control', 'funcion_control', 'control_iso', 'responsable',
+                  'fecha_planificacion', 'fecha_inicio_ejecucion', 'fecha_objetivo', 'fecha_finalizacion',
                   'estado_control', 'justificacion']
         widgets = {
             'id_riesgo': forms.Select(attrs={'class': 'form-select'}),
@@ -15,8 +16,12 @@ class TratamientoForm(forms.ModelForm):
             'descripcion_ctrl': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'tipo_control': forms.Select(attrs={'class': 'form-select'}),
             'funcion_control': forms.Select(attrs={'class': 'form-select'}),
+            'control_iso': forms.Select(attrs={'class': 'form-select'}),
             'responsable': forms.TextInput(attrs={'class': 'form-control'}),
+            'fecha_planificacion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_inicio_ejecucion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'fecha_objetivo': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_finalizacion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'estado_control': forms.Select(attrs={'class': 'form-select'}),
             'justificacion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'id': 'id_justificacion'}),
         }

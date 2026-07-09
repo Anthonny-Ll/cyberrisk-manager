@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from apps.usuarios.decorators import analista_o_admin, auditor_o_admin
 from apps.auditoria.utils import registrar_log
 from .models import RiesgoResidual
 from .forms import RiesgoResidualForm, AceptacionResidualForm
@@ -24,7 +23,6 @@ def lista_residual(request):
 
 
 @login_required
-@analista_o_admin
 def crear_residual(request):
     if request.method == 'POST':
         form = RiesgoResidualForm(request.POST)
@@ -43,9 +41,8 @@ def crear_residual(request):
 
 
 @login_required
-@auditor_o_admin
 def aceptar_residual(request, pk):
-    """RN-07: Solo auditor/admin puede registrar aceptación del riesgo residual."""
+    """RN-07: Registra la decisión de aceptación del riesgo residual."""
     residual = get_object_or_404(RiesgoResidual, pk=pk)
     if request.method == 'POST':
         form = AceptacionResidualForm(request.POST, instance=residual)

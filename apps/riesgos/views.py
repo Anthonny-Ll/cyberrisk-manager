@@ -2,7 +2,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from apps.usuarios.decorators import analista_o_admin
 from apps.auditoria.utils import registrar_log
 from .models import Riesgo
 from .forms import RiesgoForm
@@ -14,6 +13,8 @@ def lista_riesgos(request):
     nivel = request.GET.get('nivel', '')
     activo = request.GET.get('activo', '')
     departamento = request.GET.get('departamento', '')
+    probabilidad = request.GET.get('probabilidad', '')
+    impacto = request.GET.get('impacto', '')
 
     if nivel:
         riesgos = riesgos.filter(nivel_cualitativo=nivel)
@@ -21,15 +22,20 @@ def lista_riesgos(request):
         riesgos = riesgos.filter(id_activo__nombre__icontains=activo)
     if departamento:
         riesgos = riesgos.filter(id_activo__departamento__icontains=departamento)
+    if probabilidad:
+        riesgos = riesgos.filter(probabilidad=probabilidad)
+    if impacto:
+        riesgos = riesgos.filter(impacto=impacto)
 
     return render(request, 'riesgos/lista.html', {
         'riesgos': riesgos,
-        'filtros': {'nivel': nivel, 'activo': activo, 'departamento': departamento},
+        'filtros': {'nivel': nivel, 'activo': activo, 'departamento': departamento,
+                    'probabilidad': probabilidad, 'impacto': impacto},
     })
 
 
 @login_required
-@analista_o_admin
+@login_required
 def crear_riesgo(request):
     if request.method == 'POST':
         form = RiesgoForm(request.POST)
@@ -47,7 +53,7 @@ def crear_riesgo(request):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def editar_riesgo(request, pk):
     riesgo = get_object_or_404(Riesgo, pk=pk)
     if request.method == 'POST':
@@ -60,6 +66,22 @@ def editar_riesgo(request, pk):
     else:
         form = RiesgoForm(instance=riesgo)
     return render(request, 'riesgos/form.html', {'form': form, 'titulo': 'Editar Evaluación de Riesgo', 'objeto': riesgo})
+
+
+@login_required
+def detalle_riesgo(request, pk):
+    """Vista consolidada: Activo -> Amenaza -> Vulnerabilidad -> Tratamiento -> Residual."""
+    riesgo = get_object_or_404(
+        Riesgo.objects.select_related('id_activo', 'id_amenaza', 'id_vulnerabilidad', 'id_usuario_registra'),
+        pk=pk
+    )
+    tratamientos = riesgo.tratamiento.select_related('control_iso').all()
+    residual = getattr(riesgo, 'residual', None)
+    return render(request, 'riesgos/detalle.html', {
+        'riesgo': riesgo,
+        'tratamientos': tratamientos,
+        'residual': residual,
+    })
 
 
 @login_required
@@ -98,7 +120,7 @@ def matriz_riesgos(request):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def cerrar_riesgo(request, pk):
     riesgo = get_object_or_404(Riesgo, pk=pk)
     if request.method == 'POST':

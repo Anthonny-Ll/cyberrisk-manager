@@ -20,11 +20,3 @@ def rol_requerido(*roles):
 
 def solo_administrador(view_func):
     return rol_requerido('administrador')(view_func)
-
-
-def analista_o_admin(view_func):
-    return rol_requerido('administrador', 'analista')(view_func)
-
-
-def auditor_o_admin(view_func):
-    return rol_requerido('administrador', 'auditor')(view_func)

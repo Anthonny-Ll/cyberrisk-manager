@@ -139,3 +139,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// Activar tooltips de Bootstrap (matriz de riesgos, badges de control ISO, etc.)
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+        new bootstrap.Tooltip(el);
+    });
+});

@@ -2,7 +2,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from apps.usuarios.decorators import analista_o_admin
 from apps.auditoria.utils import registrar_log
 from .models import Activo
 from .forms import ActivoForm
@@ -39,7 +38,7 @@ def detalle_activo(request, pk):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def crear_activo(request):
     if request.method == 'POST':
         form = ActivoForm(request.POST)
@@ -54,7 +53,7 @@ def crear_activo(request):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def editar_activo(request, pk):
     activo = get_object_or_404(Activo, pk=pk)
     if request.method == 'POST':
@@ -70,7 +69,7 @@ def editar_activo(request, pk):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def desactivar_activo(request, pk):
     """RN-08: Desactivación lógica, no eliminación física."""
     activo = get_object_or_404(Activo, pk=pk)

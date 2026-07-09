@@ -3,9 +3,7 @@
 {% block contenido %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="page-title mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Amenazas</h2>
-    {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
     <a href="/amenazas/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nueva Amenaza</a>
-    {% endif %}
 </div>
 <div class="card mb-3 shadow-sm">
     <div class="card-body py-2">
@@ -50,14 +48,12 @@
                     <td><span class="badge {% if amenaza.estado == 'Activo' %}bg-success{% else %}bg-secondary{% endif %}">{{ amenaza.estado }}</span></td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
                             <a href="/amenazas/{{ amenaza.pk }}/editar/" class="btn btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                             {% if amenaza.estado == 'Activo' %}
                             <form method="post" action="/amenazas/{{ amenaza.pk }}/desactivar/" class="d-inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-outline-danger" data-confirm="¿Desactivar amenaza '{{ amenaza.nombre }}'?"><i class="bi bi-archive"></i></button>
                             </form>
-                            {% endif %}
                             {% endif %}
                         </div>
                     </td>

@@ -5,9 +5,7 @@
     <h2 class="page-title mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Evaluaciones de Riesgo</h2>
     <div class="d-flex gap-2">
         <a href="/riesgos/matriz/" class="btn btn-outline-primary"><i class="bi bi-grid-3x3 me-1"></i>Ver Matriz</a>
-        {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
         <a href="/riesgos/nuevo/" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nueva Evaluación</a>
-        {% endif %}
     </div>
 </div>
 <div class="card mb-3 shadow-sm">
@@ -65,10 +63,9 @@
                         <td><small>{{ r.get_estado_riesgo_display }}</small></td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                {% if request.user.rol in 'administrador,analista' or request.user.is_superuser %}
+                                <a href="/riesgos/{{ r.pk }}/" class="btn btn-outline-secondary" title="Ver detalle"><i class="bi bi-eye"></i></a>
                                 <a href="/riesgos/{{ r.pk }}/editar/" class="btn btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
                                 <a href="/tratamiento/nuevo/" class="btn btn-outline-success" title="Agregar control"><i class="bi bi-shield-check"></i></a>
-                                {% endif %}
                             </div>
                         </td>
                     </tr>

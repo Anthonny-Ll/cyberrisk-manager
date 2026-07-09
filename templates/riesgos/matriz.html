@@ -41,18 +41,23 @@
                             {% else %}1 — Rara vez{% endif %}
                         </td>
                         {% for i in rango %}
-                        {% with celda=matriz|dictsort:p %}
-                        {% with c=matriz %}
-                        <td class="celda-{{ c|get_item:p|get_item:i|get_item:'color' }} position-relative">
-                            <div class="fw-bold fs-5">{{ c|get_item:p|get_item:i|get_item:'valor' }}</div>
-                            <div class="small">{{ c|get_item:p|get_item:i|get_item:'nivel' }}</div>
-                            {% if c|get_item:p|get_item:i|get_item:'count' > 0 %}
+                        {% with celda=matriz|get_item:p|get_item:i %}
+                        <td class="celda-{{ celda.color }} position-relative{% if celda.count > 0 %} celda-clickable{% endif %}"
+                            {% if celda.count > 0 %}
+                            onclick="location.href='/riesgos/?probabilidad={{ p }}&amp;impacto={{ i }}'"
+                            style="cursor:pointer" role="button"
+                            title="Riesgos en esta celda: {% for r in celda.riesgos %}{% if not forloop.first %}, {% endif %}R-{{ r.pk|stringformat:'03d' }} ({{ r.id_activo.nombre }}){% endfor %} — clic para ver el detalle"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            {% endif %}>
+                            <div class="fw-bold fs-5">{{ celda.valor }}</div>
+                            <div class="small">{{ celda.nivel }}</div>
+                            {% if celda.count > 0 %}
                             <span class="position-absolute top-0 end-0 badge bg-dark mt-1 me-1">
-                                {{ c|get_item:p|get_item:i|get_item:'count' }}
+                                {{ celda.count }}
                             </span>
                             {% endif %}
                         </td>
-                        {% endwith %}{% endwith %}
+                        {% endwith %}
                         {% endfor %}
                     </tr>
                     {% endfor %}

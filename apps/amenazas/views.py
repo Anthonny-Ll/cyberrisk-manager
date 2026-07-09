@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from apps.usuarios.decorators import analista_o_admin
 from apps.auditoria.utils import registrar_log
 from .models import Amenaza
 from .forms import AmenazaForm
@@ -20,7 +19,7 @@ def lista_amenazas(request):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def crear_amenaza(request):
     if request.method == 'POST':
         form = AmenazaForm(request.POST)
@@ -35,7 +34,7 @@ def crear_amenaza(request):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def editar_amenaza(request, pk):
     amenaza = get_object_or_404(Amenaza, pk=pk)
     if request.method == 'POST':
@@ -51,7 +50,7 @@ def editar_amenaza(request, pk):
 
 
 @login_required
-@analista_o_admin
+@login_required
 def desactivar_amenaza(request, pk):
     amenaza = get_object_or_404(Amenaza, pk=pk)
     if request.method == 'POST':

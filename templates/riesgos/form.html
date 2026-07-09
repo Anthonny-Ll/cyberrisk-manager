@@ -38,6 +38,11 @@
             </div>
 
             <div class="col-md-4"><label class="form-label">Estado</label>{{ form.estado_riesgo }}</div>
+            <div class="col-12">
+                <label class="form-label">Controles existentes</label>
+                {{ form.controles_existentes }}
+                <div class="form-text">Controles de seguridad que ya estaban implementados antes de esta evaluación (si los hay).</div>
+            </div>
             <div class="col-12"><label class="form-label">Observaciones</label>{{ form.observaciones }}</div>
         </div>
         <hr class="my-3">
