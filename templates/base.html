@@ -8,8 +8,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {% load static %}
-    <link href="{% static 'css/estilos.css' %}" rel="stylesheet">
+    <link href="{% static 'css/estilos.css' %}?v=3" rel="stylesheet">
     {% block estilos_extra %}{% endblock %}
 </head>
 <body>
@@ -20,11 +24,15 @@
         <button class="btn btn-link text-white me-3 p-0" id="sidebar-toggle">
             <i class="bi bi-list fs-4"></i>
         </button>
-        <span class="navbar-brand mb-0 fw-bold">
-            <i class="bi bi-shield-lock-fill me-2"></i>CyberSave
+        <span class="navbar-brand mb-0 fw-bold d-flex align-items-center">
+            <img src="{% static 'img/logo.png' %}" alt="Logo" width="30" height="30" class="me-2 rounded-circle" style="box-shadow: 0 0 10px rgba(0,255,255,0.5);">
+            CyberSave
         </span>
     </div>
     <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-outline-light me-2" id="btn-dark-mode" title="Modo Oscuro">
+            <i class="bi bi-moon-stars"></i>
+        </button>
         <span class="text-white-50 small">
             <i class="bi bi-person-circle me-1"></i>
             {{ request.user.nombre_completo|default:request.user.username }}
@@ -111,6 +119,15 @@
             </li>
 
             <li class="sidebar-section mt-3 mb-1 px-2">
+                <small class="text-uppercase text-muted text-info">Asistente Inteligente</small>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link sidebar-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasIA">
+                    <i class="bi bi-robot text-info"></i> Asesor IA
+                </a>
+            </li>
+
+            <li class="sidebar-section mt-3 mb-1 px-2">
                 <small class="text-uppercase text-muted">Administración</small>
             </li>
             <li class="nav-item">
@@ -132,35 +149,138 @@
 
     <!-- Contenido principal -->
     <div id="page-content" class="flex-grow-1 p-4">
-        <!-- Mensajes de alerta -->
-        {% if messages %}
-        <div class="messages-container">
-            {% for mensaje in messages %}
-            <div class="alert alert-{% if mensaje.tags == 'error' %}danger{% else %}{{ mensaje.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                {% if mensaje.tags == 'error' or mensaje.tags == 'danger' %}
-                    <i class="bi bi-x-circle-fill me-2"></i>
-                {% elif mensaje.tags == 'warning' %}
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                {% elif mensaje.tags == 'success' %}
-                    <i class="bi bi-check-circle-fill me-2"></i>
-                {% else %}
-                    <i class="bi bi-info-circle-fill me-2"></i>
-                {% endif %}
-                {{ mensaje }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         {% block contenido %}{% endblock %}
     </div>
 </div>
 
+<!-- Contenedor Toasts -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+    {% if messages %}
+        {% for mensaje in messages %}
+        <div class="toast align-items-center text-bg-{% if mensaje.tags == 'error' %}danger{% else %}{{ mensaje.tags }}{% endif %} border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {% if mensaje.tags == 'error' or mensaje.tags == 'danger' %}
+                        <i class="bi bi-x-circle-fill me-2"></i>
+                    {% elif mensaje.tags == 'warning' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% elif mensaje.tags == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                    {% else %}
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                    {% endif %}
+                    {{ mensaje }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Offcanvas Asesor IA -->
+<div class="offcanvas offcanvas-end shadow" tabindex="-1" id="offcanvasIA" aria-labelledby="offcanvasIALabel" style="width: 450px;">
+  <div class="offcanvas-header bg-dark text-white">
+    <h5 class="offcanvas-title" id="offcanvasIALabel"><i class="bi bi-robot text-info me-2"></i>CyberSave Asesor IA</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" style="background-color: #f8f9fa;">
+    <div class="text-center mb-4">
+        <button id="btn-analizar-ia" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-magic me-2"></i>Generar Análisis del Panorama
+        </button>
+    </div>
+    <div id="ia-loading" class="text-center my-5" style="display: none;">
+        <div class="spinner-grow text-info" role="status"><span class="visually-hidden">Pensando...</span></div>
+        <p class="text-muted mt-2 small">Analizando inventario y riesgos...</p>
+    </div>
+    <div id="ia-response-container" class="card border-0 shadow-sm" style="display: none;">
+        <div class="card-body">
+            <div id="ia-response-content" class="small lh-lg" style="font-family: 'Outfit', sans-serif;"></div>
+        </div>
+    </div>
+  </div>
+</div>
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Marked.js para renderizar Markdown -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% load static %}
 <script src="{% static 'js/main.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnAnalizar = document.getElementById('btn-analizar-ia');
+    const loading = document.getElementById('ia-loading');
+    const container = document.getElementById('ia-response-container');
+    const content = document.getElementById('ia-response-content');
+    
+    if(btnAnalizar) {
+        btnAnalizar.addEventListener('click', function() {
+            btnAnalizar.style.display = 'none';
+            container.style.display = 'none';
+            loading.style.display = 'block';
+            content.innerHTML = '';
+            
+            fetch('/riesgos/api/asesor-ia/')
+                .then(res => res.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    container.style.display = 'block';
+                    const htmlRaw = marked.parse(data.analisis);
+                    content.innerHTML = htmlRaw;
+                    content.style.opacity = 0;
+                    content.style.transition = "opacity 1.5s ease-in-out";
+                    setTimeout(() => { content.style.opacity = 1; }, 50);
+                })
+                .catch(err => {
+                    loading.style.display = 'none';
+                    container.style.display = 'block';
+                    content.innerHTML = '<span class="text-danger">Error al contactar al Asesor IA.</span>';
+                });
+        });
+        
+        const offcanvasEl = document.getElementById('offcanvasIA');
+        if(offcanvasEl) {
+            offcanvasEl.addEventListener('hidden.bs.offcanvas', function () {
+                btnAnalizar.style.display = 'inline-block';
+                container.style.display = 'none';
+                loading.style.display = 'none';
+                content.innerHTML = '';
+            });
+        }
+    }
+}); // Cierre del primer DOMContentLoaded
+
+// Toasts de Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+    const toastElList = document.querySelectorAll('.toast');
+    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl));
+    toastList.forEach(toast => toast.show());
+    
+    // Dark Mode Toggle
+    const btnDarkMode = document.getElementById('btn-dark-mode');
+    const htmlEl = document.documentElement;
+    const icon = btnDarkMode.querySelector('i');
+    
+    if (localStorage.getItem('theme') === 'dark') {
+        htmlEl.setAttribute('data-theme', 'dark');
+        icon.className = 'bi bi-sun';
+    }
+    
+    btnDarkMode.addEventListener('click', () => {
+        if (htmlEl.getAttribute('data-theme') === 'dark') {
+            htmlEl.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            icon.className = 'bi bi-moon-stars';
+        } else {
+            htmlEl.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            icon.className = 'bi bi-sun';
+        }
+    });
+});
+</script>
 {% block scripts_extra %}{% endblock %}
 
 </body>

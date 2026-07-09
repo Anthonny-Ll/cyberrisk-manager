@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}Activos — CyberSave{% endblock %}
 {% block contenido %}
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -103,12 +103,19 @@
                                 {% if activo.estado == 'Activo' %}
                                 <form method="post" action="/activos/{{ activo.pk }}/desactivar/" class="d-inline">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger" title="Desactivar"
-                                            data-confirm="¿Desactivar el activo '{{ activo.nombre }}'? Esta acción es reversible.">
+                                    <button type="submit" class="btn btn-outline-warning" title="Desactivar"
+                                            data-confirm="¿Desactivar el activo '{{ activo.nombre }}'?">
                                         <i class="bi bi-archive"></i>
                                     </button>
                                 </form>
                                 {% endif %}
+                                <form method="post" action="/activos/{{ activo.pk }}/eliminar/" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger" title="Eliminar definitivamente"
+                                            data-confirm="¿Estás seguro de eliminar PERMANENTEMENTE el activo '{{ activo.nombre }}'? Se borrarán los riesgos asociados.">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

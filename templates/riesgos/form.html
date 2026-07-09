@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}{{ titulo }} — CyberSave{% endblock %}
 {% block contenido %}
 <div class="d-flex align-items-center mb-3">
@@ -52,4 +52,37 @@
         </div>
     </form>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const activoSelect = document.querySelector('select[name="id_activo"]');
+    const amenazaSelect = document.querySelector('select[name="id_amenaza"]');
+    const vulnSelect = document.querySelector('select[name="id_vulnerabilidad"]');
+
+    if (activoSelect) {
+        activoSelect.addEventListener('change', function() {
+            const activoId = this.value;
+            if (activoId) {
+                fetch(`/riesgos/api/datos-activo/${activoId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Limpiar y repoblar Amenazas
+                        amenazaSelect.innerHTML = '<option value="" selected>---------</option>';
+                        data.amenazas.forEach(item => {
+                            amenazaSelect.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
+                        });
+                        // Limpiar y repoblar Vulnerabilidades
+                        vulnSelect.innerHTML = '<option value="" selected>---------</option>';
+                        data.vulnerabilidades.forEach(item => {
+                            vulnSelect.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
+                        });
+                    })
+                    .catch(err => console.error('Error fetching data:', err));
+            } else {
+                amenazaSelect.innerHTML = '<option value="" selected>---------</option>';
+                vulnSelect.innerHTML = '<option value="" selected>---------</option>';
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

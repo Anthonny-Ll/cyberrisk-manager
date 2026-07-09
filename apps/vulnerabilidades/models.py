@@ -1,7 +1,7 @@
 """Modelo de vulnerabilidades asociadas a activos."""
 from django.db import models
 from apps.activos.models import Activo
-
+from apps.amenazas.models import Amenaza
 
 class Vulnerabilidad(models.Model):
     SEVERIDAD_CHOICES = [
@@ -18,7 +18,9 @@ class Vulnerabilidad(models.Model):
 
     nombre = models.CharField('Nombre', max_length=200)
     descripcion = models.TextField('Descripción', blank=True)
+    cve_id = models.CharField('CVE ID', max_length=50, blank=True, help_text='Ej: CVE-2024-1234')
     id_activo = models.ForeignKey(Activo, on_delete=models.CASCADE, verbose_name='Activo', related_name='vulnerabilidades')
+    amenaza_asociada = models.ForeignKey(Amenaza, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Amenaza asociada')
     cvss_score = models.FloatField('CVSS Score', null=True, blank=True, help_text='0.0 – 10.0')
     cvss_vector = models.CharField('Vector CVSS', max_length=60, blank=True,
         help_text='Cadena de vector CVSS v3.1 generada por la calculadora')

@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from apps.auditoria.utils import registrar_log
+import json
+from apps.riesgos.models import Riesgo
 from .models import Tratamiento
 from .forms import TratamientoForm
 
@@ -41,7 +43,15 @@ def crear_tratamiento(request):
             return redirect('/tratamiento/')
     else:
         form = TratamientoForm()
-    return render(request, 'tratamiento/form.html', {'form': form, 'titulo': 'Nuevo Tratamiento'})
+        
+    # Pre-cargar datos de riesgos para el simulador What-If
+    riesgos_datos = {r.pk: {'p': r.probabilidad, 'i': r.impacto} for r in Riesgo.objects.all()}
+    
+    return render(request, 'tratamiento/form.html', {
+        'form': form, 
+        'titulo': 'Nuevo Tratamiento',
+        'riesgos_json': json.dumps(riesgos_datos)
+    })
 
 
 @login_required
@@ -64,4 +74,12 @@ def editar_tratamiento(request, pk):
             return redirect('/tratamiento/')
     else:
         form = TratamientoForm(instance=trat)
-    return render(request, 'tratamiento/form.html', {'form': form, 'titulo': 'Editar Tratamiento', 'objeto': trat})
+        
+    riesgos_datos = {r.pk: {'p': r.probabilidad, 'i': r.impacto} for r in Riesgo.objects.all()}
+    
+    return render(request, 'tratamiento/form.html', {
+        'form': form, 
+        'titulo': 'Editar Tratamiento', 
+        'objeto': trat,
+        'riesgos_json': json.dumps(riesgos_datos)
+    })

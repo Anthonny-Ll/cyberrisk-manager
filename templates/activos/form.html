@@ -1,4 +1,4 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% block titulo %}{{ titulo }} — CyberSave{% endblock %}
 {% block contenido %}
 <div class="d-flex align-items-center mb-3">
@@ -9,8 +9,21 @@
 <div class="form-card">
     <form method="post" novalidate>
         {% csrf_token %}
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        
+        {% if form.errors %}
+        <div class="alert alert-danger mb-4">
+            <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>No se pudo guardar:</strong>
+            <ul class="mb-0 mt-2">
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                {% endif %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
         {% endif %}
 
         <div class="row g-3">
@@ -34,8 +47,14 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label">Departamento *</label>
-                {{ form.departamento }}
-                {% if form.departamento.errors %}<div class="text-danger small">{{ form.departamento.errors }}</div>{% endif %}
+                <input type="text" name="departamento" class="form-control {% if form.departamento.errors %}is-invalid{% endif %}" 
+                       value="{{ form.departamento.value|default_if_none:'' }}" list="deptosList" autocomplete="off" required>
+                <datalist id="deptosList">
+                    {% for depto in departamentos %}
+                    <option value="{{ depto }}"></option>
+                    {% endfor %}
+                </datalist>
+                {% if form.departamento.errors %}<div class="invalid-feedback">{{ form.departamento.errors|striptags }}</div>{% endif %}
             </div>
 
             <div class="col-12">

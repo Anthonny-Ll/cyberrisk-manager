@@ -16,9 +16,18 @@
             </div>
             <div class="col-12"><label class="form-label">Descripción</label>{{ form.descripcion }}</div>
             <div class="col-md-6"><label class="form-label">Activo afectado *</label>{{ form.id_activo }}</div>
+            <div class="col-md-6"><label class="form-label">Amenaza asociada <small class="text-muted">(opcional)</small></label>{{ form.amenaza_asociada }}</div>
             <div class="col-md-6">
-                <label class="form-label">Estado</label>{{ form.estado }}
+                <label class="form-label">CVE ID <small class="text-muted">(opcional, autocompleta desde el NIST)</small></label>
+                <div class="input-group">
+                    {{ form.cve_id }}
+                    <button class="btn btn-outline-primary" type="button" id="btn-buscar-cve" title="Buscar en NIST NVD">
+                        <i class="bi bi-search"></i> Buscar en NIST
+                    </button>
+                </div>
+                <div class="form-text" id="cve-help">Ej: CVE-2024-1234. Si lo encuentra, autocompleta descripción y CVSS.</div>
             </div>
+            <div class="col-md-6"><label class="form-label">Estado</label>{{ form.estado }}</div>
         </div>
 
         <hr class="my-3">
@@ -27,7 +36,7 @@
         <div class="card border-primary mb-3">
             <div class="card-header bg-primary text-white fw-semibold d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-calculator me-2"></i>Calculadora CVSS v3.1</span>
-                <small class="fw-normal">Seleccione cada métrica para calcular el puntaje real</small>
+                <small class="fw-normal">Seleccione cada métrica para calcular el puntaje real (o use "Buscar en NIST" arriba)</small>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -162,6 +171,24 @@
 {% block scripts_extra %}
 <script>
 // Calculadora CVSS v3.1 — implementa la formula oficial de la especificacion.
+function actualizarPreviewSeveridad(score) {
+    let severidad, color;
+    if (score === 0) { severidad = 'Ninguna'; color = 'secondary'; }
+    else if (score < 4.0) { severidad = 'Baja'; color = 'success'; }
+    else if (score < 7.0) { severidad = 'Media'; color = 'warning text-dark'; }
+    else if (score < 9.0) { severidad = 'Alta'; color = 'orange'; }
+    else { severidad = 'Crítica'; color = 'danger'; }
+
+    document.getElementById('cvss-score-preview').textContent = score.toFixed(1);
+    const badgeSev = document.getElementById('cvss-severidad-preview');
+    badgeSev.textContent = severidad;
+    badgeSev.className = 'badge fs-6 ms-2 bg-' + color;
+    if (score > 0) {
+        document.getElementById('id_severidad').value = severidad;
+    }
+    return severidad;
+}
+
 function calcularCVSS() {
     const metricas = {};
     document.querySelectorAll('.cvss-metric:checked').forEach(el => {
@@ -211,29 +238,58 @@ function calcularCVSS() {
 
     const vector = `CVSS:3.1/AV:${metricas.AV.dataset.letra}/AC:${metricas.AC.dataset.letra}/PR:${metricas.PR.dataset.letra}/UI:${metricas.UI.dataset.letra}/S:${metricas.S.dataset.letra}/C:${metricas.C.dataset.letra}/I:${metricas.I.dataset.letra}/A:${metricas.A.dataset.letra}`;
 
-    let severidad, color;
-    if (score === 0) { severidad = 'Ninguna'; color = 'secondary'; }
-    else if (score < 4.0) { severidad = 'Baja'; color = 'success'; }
-    else if (score < 7.0) { severidad = 'Media'; color = 'warning text-dark'; }
-    else if (score < 9.0) { severidad = 'Alta'; color = 'orange'; }
-    else { severidad = 'Crítica'; color = 'danger'; }
-
     document.getElementById('cvss-vector-preview').textContent = vector;
-    document.getElementById('cvss-score-preview').textContent = score.toFixed(1);
-    const badgeSev = document.getElementById('cvss-severidad-preview');
-    badgeSev.textContent = severidad;
-    badgeSev.className = 'badge fs-6 ms-2 bg-' + color;
+    actualizarPreviewSeveridad(score);
 
     document.getElementById('id_cvss_score').value = score.toFixed(1);
     document.getElementById('id_cvss_vector').value = vector;
-    if (score > 0) {
-        document.getElementById('id_severidad').value = severidad;
-    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.cvss-metric').forEach(el => el.addEventListener('change', calcularCVSS));
     calcularCVSS();
+
+    // Busqueda de CVE real en el NIST NVD — autocompleta descripcion y CVSS
+    const btnBuscar = document.getElementById('btn-buscar-cve');
+    const inputCve = document.getElementById('id_cve_id');
+    const inputDesc = document.getElementById('id_descripcion');
+    const inputCvss = document.getElementById('id_cvss_score');
+    const helpText = document.getElementById('cve-help');
+
+    if (btnBuscar) {
+        btnBuscar.addEventListener('click', function () {
+            const cveId = inputCve.value.trim();
+            if (!cveId) return;
+
+            btnBuscar.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            btnBuscar.disabled = true;
+            helpText.innerHTML = '<span class="text-info">Buscando en NIST...</span>';
+
+            fetch(`/vulnerabilidades/api/buscar-cve/?cve_id=${encodeURIComponent(cveId)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        helpText.innerHTML = `<span class="text-danger">${data.error}</span>`;
+                    } else {
+                        helpText.innerHTML = `<span class="text-success">¡Datos encontrados en el NIST!</span>`;
+                        if (data.descripcion && !inputDesc.value) inputDesc.value = data.descripcion;
+                        if (data.cvss_score) {
+                            const score = parseFloat(data.cvss_score);
+                            inputCvss.value = score.toFixed(1);
+                            document.getElementById('cvss-score-preview').textContent = score.toFixed(1);
+                            actualizarPreviewSeveridad(score);
+                        }
+                    }
+                })
+                .catch(() => {
+                    helpText.innerHTML = `<span class="text-danger">Error de conexión con el NIST</span>`;
+                })
+                .finally(() => {
+                    btnBuscar.innerHTML = '<i class="bi bi-search"></i> Buscar en NIST';
+                    btnBuscar.disabled = false;
+                });
+        });
+    }
 });
 </script>
 {% endblock %}
