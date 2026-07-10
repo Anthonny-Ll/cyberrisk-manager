@@ -37,6 +37,8 @@ class Riesgo(models.Model):
         ('Cerrado', 'Cerrado'),
     ]
 
+    nombre = models.CharField('Título del riesgo', max_length=250, blank=True,
+        help_text='Descripción literal de qué es el riesgo. Si se deja vacío, se genera automáticamente.')
     id_activo = models.ForeignKey(Activo, on_delete=models.CASCADE, verbose_name='Activo')
     id_amenaza = models.ForeignKey(Amenaza, on_delete=models.CASCADE, verbose_name='Amenaza')
     id_vulnerabilidad = models.ForeignKey(Vulnerabilidad, on_delete=models.CASCADE, verbose_name='Vulnerabilidad')
@@ -65,6 +67,9 @@ class Riesgo(models.Model):
         # Cálculo automático del riesgo inherente
         self.riesgo_inherente = self.probabilidad * self.impacto
         self.nivel_cualitativo = calcular_nivel_cualitativo(self.riesgo_inherente)
+        # Título literal del riesgo: si no lo escribieron, se arma solo con Amenaza + Activo
+        if not self.nombre.strip():
+            self.nombre = f"{self.id_amenaza.nombre} sobre {self.id_activo.nombre}"
         super().save(*args, **kwargs)
 
     def get_nivel_color(self):
@@ -76,4 +81,4 @@ class Riesgo(models.Model):
         return badges.get(self.nivel_cualitativo, 'bg-secondary')
 
     def __str__(self):
-        return f"R-{self.pk:03d} | {self.id_activo.nombre} | {self.nivel_cualitativo} ({self.riesgo_inherente})"
+        return f"R-{self.pk:03d} | {self.nombre} | {self.nivel_cualitativo} ({self.riesgo_inherente})"

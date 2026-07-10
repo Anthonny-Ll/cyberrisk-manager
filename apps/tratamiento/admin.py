@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tratamiento, ControlISO27002
+from .models import Tratamiento, ControlISO27001
 
 @admin.register(Tratamiento)
 class TratamientoAdmin(admin.ModelAdmin):
@@ -7,8 +7,8 @@ class TratamientoAdmin(admin.ModelAdmin):
     list_filter = ['estrategia', 'tipo_control', 'estado_control']
 
 
-@admin.register(ControlISO27002)
-class ControlISO27002Admin(admin.ModelAdmin):
+@admin.register(ControlISO27001)
+class ControlISO27001Admin(admin.ModelAdmin):
     list_display = ['codigo', 'nombre', 'categoria']
     list_filter = ['categoria']
     search_fields = ['codigo', 'nombre']

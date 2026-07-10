@@ -46,7 +46,7 @@
                             {% if celda.count > 0 %}
                             onclick="location.href='/riesgos/?probabilidad={{ p }}&amp;impacto={{ i }}'"
                             style="cursor:pointer" role="button"
-                            title="Riesgos en esta celda: {% for r in celda.riesgos %}{% if not forloop.first %}, {% endif %}R-{{ r.pk|stringformat:'03d' }} ({{ r.id_activo.nombre }}){% endfor %} — clic para ver el detalle"
+                            title="Riesgos en esta celda: {% for r in celda.riesgos %}{% if not forloop.first %}, {% endif %}R-{{ r.pk|stringformat:'03d' }}: {{ r.nombre }}{% endfor %} — clic para ver el detalle"
                             data-bs-toggle="tooltip" data-bs-placement="top"
                             {% endif %}>
                             <div class="fw-bold fs-5">{{ celda.valor }}</div>
@@ -73,13 +73,14 @@
     <div class="card-header fw-semibold">Riesgos posicionados en la matriz</div>
     <div class="card-body p-0">
         <table class="table table-sm table-hover mb-0">
-            <thead><tr><th>ID</th><th>Activo</th><th>P</th><th>I</th><th>Valor</th><th>Nivel</th><th>Estado</th></tr></thead>
+            <thead><tr><th>ID</th><th>Título del riesgo</th><th>Activo</th><th>P</th><th>I</th><th>Valor</th><th>Nivel</th><th>Estado</th></tr></thead>
             <tbody>
                 {% for p in rango reversed %}
                     {% for i in rango %}
                         {% for r in matriz|get_item:p|get_item:i|get_item:'riesgos' %}
                         <tr>
                             <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
+                            <td><a href="/riesgos/{{ r.pk }}/" class="text-decoration-none">{{ r.nombre|truncatechars:40 }}</a></td>
                             <td>{{ r.id_activo.nombre|truncatechars:30 }}</td>
                             <td class="fw-bold">{{ r.probabilidad }}</td>
                             <td class="fw-bold">{{ r.impacto }}</td>

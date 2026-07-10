@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Carga el catalogo de 93 controles de referencia ISO/IEC 27002:2022.
-Uso: python manage.py cargar_iso27002
+Carga el catalogo de 93 controles de referencia ISO/IEC 27001:2022 (Anexo A).
+Uso: python manage.py cargar_iso27001
 """
 from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Carga el catalogo de controles ISO/IEC 27002:2022 (93 controles)'
+    help = 'Carga el catalogo de controles ISO/IEC 27001:2022 - Anexo A (93 controles)'
 
     def handle(self, *args, **options):
-        from apps.tratamiento.models import ControlISO27002
+        from apps.tratamiento.models import ControlISO27001
 
         controles = []
 
@@ -133,12 +133,12 @@ class Command(BaseCommand):
 
         creados = 0
         for codigo, nombre, categoria in controles:
-            _, creado = ControlISO27002.objects.get_or_create(
+            _, creado = ControlISO27001.objects.get_or_create(
                 codigo=codigo, defaults={'nombre': nombre, 'categoria': categoria}
             )
             if creado:
                 creados += 1
 
         self.stdout.write(self.style.SUCCESS(
-            f'Catalogo ISO 27002:2022 cargado: {creados} controles nuevos ({len(controles)} totales en catalogo).'
+            f'Catalogo ISO 27001:2022 (Anexo A) cargado: {creados} controles nuevos ({len(controles)} totales en catalogo).'
         ))

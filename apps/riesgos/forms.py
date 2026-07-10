@@ -7,9 +7,13 @@ from .models import Riesgo
 class RiesgoForm(forms.ModelForm):
     class Meta:
         model = Riesgo
-        fields = ['id_activo', 'id_amenaza', 'id_vulnerabilidad', 'probabilidad', 'impacto',
+        fields = ['nombre', 'id_activo', 'id_amenaza', 'id_vulnerabilidad', 'probabilidad', 'impacto',
                   'estado_riesgo', 'controles_existentes', 'observaciones']
         widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Filtración de datos de clientes por bucket S3 mal configurado (opcional, se autogenera si se deja vacío)'
+            }),
             'id_activo': forms.Select(attrs={'class': 'form-select'}),
             'id_amenaza': forms.Select(attrs={'class': 'form-select'}),
             'id_vulnerabilidad': forms.Select(attrs={'class': 'form-select'}),

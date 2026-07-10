@@ -9,32 +9,36 @@
 <!-- KPIs de monitoreo -->
 <div class="row g-3 mb-4">
     <div class="col-sm-4">
-        <div class="kpi-card border-start border-danger border-4">
+        <a href="#seccion-criticos" class="kpi-card kpi-clickable text-decoration-none border-start border-danger border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver el detalle de estos riesgos más abajo">
             <div class="kpi-icon text-danger"><i class="bi bi-exclamation-octagon"></i></div>
             <div class="kpi-value text-danger">{{ criticos_sin_trat.count }}</div>
             <div class="kpi-label">Riesgos críticos sin control</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-4">
-        <div class="kpi-card border-start border-4" style="border-color:#fd7e14!important">
+        <a href="#seccion-vencidos" class="kpi-card kpi-clickable text-decoration-none border-start border-4" style="border-color:#fd7e14!important"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver el detalle de estos controles más abajo">
             <div class="kpi-icon" style="color:#fd7e14"><i class="bi bi-clock-history"></i></div>
             <div class="kpi-value" style="color:#fd7e14">{{ controles_vencidos.count }}</div>
             <div class="kpi-label">Controles vencidos</div>
-        </div>
+        </a>
     </div>
     <div class="col-sm-4">
-        <div class="kpi-card border-start border-warning border-4">
+        <a href="#seccion-residuales" class="kpi-card kpi-clickable text-decoration-none border-start border-warning border-4"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver el detalle de estos riesgos residuales más abajo">
             <div class="kpi-icon text-warning"><i class="bi bi-hourglass-split"></i></div>
             <div class="kpi-value" style="color:#e6ac00">{{ residuales_pendientes.count }}</div>
             <div class="kpi-label">Residuales pendientes de aceptación</div>
-        </div>
+        </a>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <!-- Progreso de controles -->
     <div class="col-lg-4">
-        <div class="card shadow-sm h-100">
+        <a href="/tratamiento/" class="card shadow-sm h-100 text-decoration-none text-reset kpi-clickable"
+           data-bs-toggle="tooltip" data-bs-placement="top" title="Ver todos los tratamientos">
             <div class="card-header fw-semibold"><i class="bi bi-bar-chart-steps me-2"></i>Progreso de Controles</div>
             <div class="card-body">
                 <div class="text-center mb-3">
@@ -46,7 +50,7 @@
                 </div>
                 <div class="text-center text-muted small">{{ implementados }} de {{ total_controles }} controles</div>
             </div>
-        </div>
+        </a>
     </div>
     <!-- Estado de vulnerabilidades -->
     <div class="col-lg-4">
@@ -54,18 +58,18 @@
             <div class="card-header fw-semibold"><i class="bi bi-bug me-2"></i>Estado de Vulnerabilidades</div>
             <div class="card-body">
                 <div class="d-flex flex-column gap-2">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <a href="/vulnerabilidades/?estado=Identificada" class="d-flex justify-content-between align-items-center text-decoration-none text-reset">
                         <span><span class="badge bg-danger me-2">Identificada</span></span>
                         <strong>{{ vulns_abiertas }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
+                    </a>
+                    <a href="/vulnerabilidades/?estado=En+tratamiento" class="d-flex justify-content-between align-items-center text-decoration-none text-reset">
                         <span><span class="badge bg-warning text-dark me-2">En tratamiento</span></span>
                         <strong>{{ vulns_en_trat }}</strong>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
+                    </a>
+                    <a href="/vulnerabilidades/?estado=Resuelta" class="d-flex justify-content-between align-items-center text-decoration-none text-reset">
                         <span><span class="badge bg-success me-2">Resuelta</span></span>
                         <strong>{{ vulns_resueltas }}</strong>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -86,17 +90,17 @@
 
 <!-- Alertas rojas -->
 {% if criticos_sin_trat %}
-<div class="card border-danger shadow-sm mb-3">
+<div id="seccion-criticos" class="card border-danger shadow-sm mb-3">
     <div class="card-header bg-danger text-white fw-semibold"><i class="bi bi-exclamation-octagon-fill me-2"></i>Riesgos CRÍTICOS sin tratamiento asignado</div>
     <div class="card-body p-0">
         <table class="table table-sm mb-0">
-            <thead><tr><th>Riesgo</th><th>Activo</th><th>Amenaza</th><th>Valor</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Riesgo</th><th>Título del riesgo</th><th>Activo</th><th>Valor</th><th>Acción</th></tr></thead>
             <tbody>
                 {% for r in criticos_sin_trat %}
                 <tr>
                     <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
+                    <td><a href="/riesgos/{{ r.pk }}/" class="text-decoration-none">{{ r.nombre|truncatechars:45 }}</a></td>
                     <td>{{ r.id_activo.nombre }}</td>
-                    <td>{{ r.id_amenaza.nombre }}</td>
                     <td><span class="badge bg-danger">{{ r.riesgo_inherente }}</span></td>
                     <td><a href="/tratamiento/nuevo/" class="btn btn-sm btn-danger py-0">Asignar control</a></td>
                 </tr>
@@ -109,7 +113,7 @@
 
 <!-- Controles vencidos -->
 {% if controles_vencidos %}
-<div class="card shadow-sm mb-3" style="border-color:#fd7e14">
+<div id="seccion-vencidos" class="card shadow-sm mb-3" style="border-color:#fd7e14">
     <div class="card-header fw-semibold" style="background:#fff3e0"><i class="bi bi-clock-history me-2" style="color:#fd7e14"></i>Controles vencidos</div>
     <div class="card-body p-0">
         <table class="table table-sm mb-0">
@@ -122,6 +126,29 @@
                     <td>{{ c.responsable }}</td>
                     <td class="text-danger fw-bold">{{ c.fecha_objetivo|date:"d/m/Y" }}</td>
                     <td><a href="/tratamiento/{{ c.pk }}/editar/" class="btn btn-sm btn-outline-warning py-0">Actualizar</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Residuales pendientes de aceptación -->
+{% if residuales_pendientes %}
+<div id="seccion-residuales" class="card shadow-sm mb-3" style="border-color:#ffc107">
+    <div class="card-header fw-semibold" style="background:#fff8e1"><i class="bi bi-hourglass-split me-2 text-warning"></i>Riesgos residuales pendientes de aceptación</div>
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+            <thead><tr><th>Residual</th><th>Riesgo</th><th>Residual (P×I)</th><th>Nivel</th><th>Acción</th></tr></thead>
+            <tbody>
+                {% for r in residuales_pendientes %}
+                <tr>
+                    <td><code>RR-{{ r.pk|stringformat:"03d" }}</code></td>
+                    <td><code>R-{{ r.id_riesgo.pk|stringformat:"03d" }}</code> — {{ r.id_riesgo.id_activo.nombre }}</td>
+                    <td class="fw-bold">{{ r.riesgo_residual }}</td>
+                    <td><span class="badge {{ r.get_nivel_badge }}">{{ r.nivel_cualitativo }}</span></td>
+                    <td><a href="/residual/{{ r.pk }}/aceptar/" class="btn btn-sm btn-outline-warning py-0">Registrar decisión</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

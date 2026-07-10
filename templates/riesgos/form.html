@@ -10,6 +10,11 @@
         {% csrf_token %}
         {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
         <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label">Título del riesgo</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors }}</div>{% endif %}
+            </div>
             <div class="col-md-12"><label class="form-label">Activo *</label>{{ form.id_activo }}{% if form.id_activo.errors %}<div class="text-danger small">{{ form.id_activo.errors }}</div>{% endif %}</div>
             <div class="col-md-6"><label class="form-label">Amenaza *</label>{{ form.id_amenaza }}{% if form.id_amenaza.errors %}<div class="text-danger small">{{ form.id_amenaza.errors }}</div>{% endif %}</div>
             <div class="col-md-6"><label class="form-label">Vulnerabilidad *</label>{{ form.id_vulnerabilidad }}{% if form.id_vulnerabilidad.errors %}<div class="text-danger small">{{ form.id_vulnerabilidad.errors }}</div>{% endif %}</div>

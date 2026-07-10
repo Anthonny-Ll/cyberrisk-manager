@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write('Creando datos de prueba...')
-        call_command('cargar_iso27002')
+        call_command('cargar_iso27001')
         self._crear_usuarios()
         self._crear_activos()
         self._crear_amenazas()
@@ -137,21 +137,26 @@ class Command(BaseCommand):
         from apps.riesgos.models import Riesgo
         usuario = self._usuarios['admin']
         datos_riesgos = [
-            {'id_activo': self._activos[0], 'id_amenaza': self._amenazas[0], 'id_vulnerabilidad': self._vulns[0],
+            {'nombre': 'Secuestro de datos de clientes por ransomware via contrasenas debiles',
+             'id_activo': self._activos[0], 'id_amenaza': self._amenazas[0], 'id_vulnerabilidad': self._vulns[0],
              'probabilidad': 3, 'impacto': 4, 'estado_riesgo': 'En tratamiento',
              'id_usuario_registra': usuario, 'controles_existentes': 'Firewall perimetral y antivirus basico en endpoints.',
              'observaciones': 'Riesgo prioritario. Contrasenas debiles + ransomware.'},
-            {'id_activo': self._activos[2], 'id_amenaza': self._amenazas[4], 'id_vulnerabilidad': self._vulns[2],
+            {'nombre': 'Ejecucion remota de codigo en el servidor web por falta de parches',
+             'id_activo': self._activos[2], 'id_amenaza': self._amenazas[4], 'id_vulnerabilidad': self._vulns[2],
              'probabilidad': 4, 'impacto': 4, 'estado_riesgo': 'Evaluado',
              'id_usuario_registra': usuario, 'controles_existentes': 'Escaneos de vulnerabilidades trimestrales con Nessus.',
              'observaciones': 'CVE-2024-1234 CVSS 9.8. Servidor expuesto a internet.'},
-            {'id_activo': self._activos[1], 'id_amenaza': self._amenazas[1], 'id_vulnerabilidad': self._vulns[1],
+            {'nombre': 'Robo de credenciales del ERP Financiero via phishing sin MFA',
+             'id_activo': self._activos[1], 'id_amenaza': self._amenazas[1], 'id_vulnerabilidad': self._vulns[1],
              'probabilidad': 3, 'impacto': 3, 'estado_riesgo': 'En tratamiento',
              'id_usuario_registra': usuario, 'observaciones': 'Phishing es el vector de ataque mas frecuente.'},
-            {'id_activo': self._activos[0], 'id_amenaza': self._amenazas[2], 'id_vulnerabilidad': self._vulns[0],
+            {'nombre': 'Acceso interno indebido a datos de clientes por privilegios excesivos',
+             'id_activo': self._activos[0], 'id_amenaza': self._amenazas[2], 'id_vulnerabilidad': self._vulns[0],
              'probabilidad': 2, 'impacto': 3, 'estado_riesgo': 'Con residual',
              'id_usuario_registra': usuario, 'observaciones': 'Control de privilegios insuficiente. RBAC en implementacion.'},
-            {'id_activo': self._activos[3], 'id_amenaza': self._amenazas[3], 'id_vulnerabilidad': self._vulns[3],
+            {'nombre': 'Corte de red por falla electrica sin segmentacion de respaldo',
+             'id_activo': self._activos[3], 'id_amenaza': self._amenazas[3], 'id_vulnerabilidad': self._vulns[3],
              'probabilidad': 2, 'impacto': 2, 'estado_riesgo': 'Evaluado',
              'id_usuario_registra': usuario, 'observaciones': 'Sin UPS en cuarto de comunicaciones.'},
         ]
@@ -166,11 +171,11 @@ class Command(BaseCommand):
             self._riesgos.append(riesgo)
 
     def _crear_tratamientos(self):
-        from apps.tratamiento.models import Tratamiento, ControlISO27002
+        from apps.tratamiento.models import Tratamiento, ControlISO27001
         hoy = date.today()
 
         def iso(codigo):
-            return ControlISO27002.objects.filter(codigo=codigo).first()
+            return ControlISO27001.objects.filter(codigo=codigo).first()
 
         datos_tratamientos = [
             {'id_riesgo': self._riesgos[0], 'estrategia': 'Mitigar',

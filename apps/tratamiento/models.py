@@ -3,8 +3,8 @@ from django.db import models
 from apps.riesgos.models import Riesgo
 
 
-class ControlISO27002(models.Model):
-    """Catálogo de controles de referencia ISO/IEC 27002:2022."""
+class ControlISO27001(models.Model):
+    """Catálogo de controles de referencia ISO/IEC 27001:2022 (Anexo A)."""
     CATEGORIA_CHOICES = [
         ('Organizacional', 'Organizacional'),
         ('Personas', 'Personas'),
@@ -18,8 +18,8 @@ class ControlISO27002(models.Model):
     descripcion = models.TextField('Descripción', blank=True)
 
     class Meta:
-        verbose_name = 'Control ISO 27002'
-        verbose_name_plural = 'Controles ISO 27002'
+        verbose_name = 'Control ISO 27001'
+        verbose_name_plural = 'Controles ISO 27001'
         ordering = ['codigo']
 
     def __str__(self):
@@ -56,8 +56,8 @@ class Tratamiento(models.Model):
     tipo_control = models.CharField('Tipo de control', max_length=20, choices=TIPO_CONTROL_CHOICES)
     funcion_control = models.CharField('Función del control', max_length=15, choices=FUNCION_CHOICES)
     control_iso = models.ForeignKey(
-        ControlISO27002, on_delete=models.SET_NULL, null=True, blank=True,
-        verbose_name='Control ISO 27002 de referencia', related_name='tratamientos'
+        ControlISO27001, on_delete=models.SET_NULL, null=True, blank=True,
+        verbose_name='Control ISO 27001 de referencia', related_name='tratamientos'
     )
     responsable = models.CharField('Responsable', max_length=200)
     fecha_objetivo = models.DateField('Fecha objetivo')

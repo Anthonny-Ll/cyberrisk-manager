@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ControlISO27002',
+            name='ControlISO27001',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('codigo', models.CharField(max_length=10, unique=True, verbose_name='Código ISO')),
@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
                 ('descripcion', models.TextField(blank=True, verbose_name='Descripción')),
             ],
             options={
-                'verbose_name': 'Control ISO 27002',
-                'verbose_name_plural': 'Controles ISO 27002',
+                'verbose_name': 'Control ISO 27001',
+                'verbose_name_plural': 'Controles ISO 27001',
                 'ordering': ['codigo'],
             },
         ),
@@ -44,6 +44,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tratamiento',
             name='control_iso',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tratamientos', to='tratamiento.controliso27002', verbose_name='Control ISO 27002 de referencia'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tratamientos', to='tratamiento.controliso27001', verbose_name='Control ISO 27001 de referencia'),
         ),
     ]

@@ -94,7 +94,7 @@
         <div class="alert alert-danger py-2 mb-2 d-flex align-items-center">
             <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i>
             <div>
-                <strong>CRÍTICO:</strong> {{ alerta.id_activo.nombre }} — Riesgo R-{{ alerta.pk|stringformat:"03d" }} sin tratamiento asignado.
+                <strong>CRÍTICO:</strong> R-{{ alerta.pk|stringformat:"03d" }} — {{ alerta.nombre }} — sin tratamiento asignado.
                 <a href="/tratamiento/nuevo/?riesgo={{ alerta.pk }}" class="ms-2 btn btn-sm btn-danger py-0">Asignar control</a>
             </div>
         </div>
@@ -156,7 +156,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>ID</th>
-                                <th>Activo</th>
+                                <th>Título del riesgo</th>
                                 <th>P×I</th>
                                 <th>Nivel</th>
                                 <th>Estado</th>
@@ -165,9 +165,9 @@
                         <tbody>
                             {% for r in ultimos_riesgos %}
                             <tr class="row-clickable" onclick="location.href='/riesgos/{{ r.pk }}/'"
-                                data-bs-toggle="tooltip" data-bs-placement="left" title="Ver detalle de R-{{ r.pk|stringformat:'03d' }}">
+                                data-bs-toggle="tooltip" data-bs-placement="left" title="{{ r.nombre }}">
                                 <td><code>R-{{ r.pk|stringformat:"03d" }}</code></td>
-                                <td>{{ r.id_activo.nombre|truncatechars:30 }}</td>
+                                <td>{{ r.nombre|truncatechars:35 }}</td>
                                 <td class="fw-bold">{{ r.riesgo_inherente }}</td>
                                 <td>
                                     <span class="badge {{ r.get_nivel_badge }}">{{ r.nivel_cualitativo }}</span>

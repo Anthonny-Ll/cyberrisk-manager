@@ -172,10 +172,10 @@ def api_asesor_ia(request):
         markdown_resp = "### 🛡️ Análisis de IA\n\n**¡Felicidades!** No he detectado riesgos con nivel **Alto** o **Crítico** abiertos en tu sistema en este momento. La organización mantiene un perfil de riesgo saludable.\n\n_Recomendación:_ Continúa el monitoreo periódico y revisa los riesgos de nivel Medio."
     else:
         markdown_resp = f"### 📊 Análisis del Panorama Actual\n\nHe escaneado el inventario y detectado **{total_criticos} riesgos CRÍTICOS** y **{total_altos} riesgos ALTOS** que requieren atención inmediata.\n\n"
-        markdown_resp += "### 💡 Recomendaciones Prioritarias (ISO/IEC 27002:2022)\n\n"
+        markdown_resp += "### 💡 Recomendaciones Prioritarias (ISO/IEC 27001:2022 — Anexo A)\n\n"
         
         for idx, r in enumerate(riesgos_criticos[:3]): # Top 3
-            markdown_resp += f"**{idx+1}. R-{r.pk:03d}: {r.id_vulnerabilidad.nombre}**\n"
+            markdown_resp += f"**{idx+1}. R-{r.pk:03d}: {r.nombre}**\n"
             markdown_resp += f"- **Activo Afectado:** {r.id_activo.nombre} (Criticidad: {r.id_activo.nivel_criticidad})\n"
             
             # Sugerencias heurísticas basadas en palabras clave

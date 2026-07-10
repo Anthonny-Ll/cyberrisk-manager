@@ -28,7 +28,7 @@ def panel_monitoreo(request):
     # Alertas amarillas: residuales sin aceptación
     residuales_pendientes = RiesgoResidual.objects.filter(
         aceptacion='Pendiente'
-    ).select_related('id_riesgo')
+    ).select_related('id_riesgo', 'id_riesgo__id_activo')
 
     # Estadísticas de seguimiento
     total_controles = Tratamiento.objects.count()
